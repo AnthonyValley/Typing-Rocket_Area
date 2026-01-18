@@ -73,11 +73,13 @@
     </div>
 
     <script>
+       
         const SUPABASE_URL = 'https://ukmwguhqvjfomwbevdaa.supabase.co'; 
         
-        const SUPABASE_KEY = 'sb_publishable_b2dcoNBg8e9MNltpvTVgZg_uUyHqlYY'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrbXdndWhxdmpmb213YmV2ZGFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3NTA4MjcsImV4cCI6MjA4NDMyNjgyN30.6suoez0xLoAJ_VjNdz63xVMikH9n7lUvSx0BvQWFM68'; 
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         const dbParole = {
             elementari: ["CASA", "SOLE", "MELA", "GATTO", "MARE", "LUCE", "PANE", "LUNA", "PERA", "FIORE"],
             medie: ["SCUOLA", "ALBERO", "FUTURO", "VIAGGIO", "AMICIZIA", "MUSICA", "TEMPO", "SPAZIO"],
@@ -90,59 +92,149 @@
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
             const msg = document.getElementById('login-msg');
+            
             if(!u || !p) return alert("Inserisci nome e password");
+            
             msg.innerText = "Connessione al database...";
+
             let { data: users, error } = await supabase.from('utenti').select('*').eq('username', u);
-            if (error) { alert("Errore connessione. Hai incollato il link giusto? " + error.message); return; }
+            
+            if (error) { 
+                alert("Errore: " + error.message); 
+                msg.innerText = "Errore connessione";
+                return; 
+            }
+
             if (users.length > 0) {
-                if (users[0].password === p) proceedToMenu(u);
-                else { msg.innerText = ""; alert("Password errata!"); }
+                if (users[0].password === p) {
+                    proceedToMenu(u);
+                } else {
+                    msg.innerText = "";
+                    alert("Password errata!");
+                }
             } else {
                 const { error: insertError } = await supabase.from('utenti').insert([{ username: u, password: p }]);
-                if(!insertError) { alert("Nuovo account creato! Benvenuto " + u); proceedToMenu(u); }
-                else alert("Errore creazione account.");
+                if(!insertError) {
+                    alert("Nuovo account creato! Benvenuto " + u);
+                    proceedToMenu(u);
+                } else {
+                    alert("Errore creazione account: " + insertError.message);
+                }
             }
         }
-        function proceedToMenu(u) { currentUser = u; document.getElementById('display-user').innerText = u; document.getElementById('login-msg').innerText = ""; showScreen('menu-screen'); }
-        async function saveScore() { if(!currentUser) return; await supabase.from('partite').insert([{ username: currentUser, score: gameState.score, livello: gameState.level }]); }
+
+        function proceedToMenu(u) {
+            currentUser = u;
+            document.getElementById('display-user').innerText = u;
+            document.getElementById('login-msg').innerText = "";
+            showScreen('menu-screen');
+        }
+
+        async function saveScore() {
+            if(!currentUser) return;
+            await supabase.from('partite').insert([
+                { username: currentUser, score: gameState.score, livello: gameState.level }
+            ]);
+        }
+
         async function showHistory() {
-            showScreen('history-screen'); const list = document.getElementById('history-list'); list.innerHTML = "Caricamento dal cloud...";
-            let { data: scores, error } = await supabase.from('partite').select('*').order('score', { ascending: false }).limit(10);
+            showScreen('history-screen');
+            const list = document.getElementById('history-list');
+            list.innerHTML = "Caricamento dal cloud...";
+            
+            let { data: scores, error } = await supabase
+                .from('partite')
+                .select('*')
+                .order('score', { ascending: false })
+                .limit(10);
+
             list.innerHTML = "";
             if (!scores || scores.length === 0) list.innerHTML = "<li>Nessun record trovato.</li>";
-            else scores.forEach(row => { const li = document.createElement('li'); li.innerHTML = `<span><b>${row.username}</b> (${row.livello})</span> <span style="color:#fbbf24">${row.score} pts</span>`; list.appendChild(li); });
+            else {
+                scores.forEach(row => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span><b>${row.username}</b> (${row.livello})</span> <span style="color:#fbbf24">${row.score} pts</span>`;
+                    list.appendChild(li);
+                });
+            }
         }
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-interface').style.display = 'none'; document.getElementById(id).style.display = 'flex'; }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.getElementById('game-interface').style.display = 'none';
+            document.getElementById(id).style.display = 'flex';
+        }
         function logout() { currentUser = null; document.getElementById('username').value=""; document.getElementById('password').value=""; showScreen('login-screen'); }
         function backToMenu() { showScreen('menu-screen'); }
+
         function startGame() {
             gameState.level = document.getElementById('difficulty-select').value;
             if(gameState.level === 'elementari') { gameState.fallSpeed = 0.8; gameState.spawnRate = 2500; }
             if(gameState.level === 'medie') { gameState.fallSpeed = 1.5; gameState.spawnRate = 2000; }
             if(gameState.level === 'superiori') { gameState.fallSpeed = 2.5; gameState.spawnRate = 1500; }
-            showScreen('game-interface'); document.getElementById('game-interface').style.display = 'block'; document.getElementById('level-label').innerText = gameState.level.toUpperCase(); document.getElementById('pause-overlay').style.display = 'none';
+            
+            showScreen('game-interface');
+            document.getElementById('game-interface').style.display = 'block';
+            document.getElementById('level-label').innerText = gameState.level.toUpperCase();
+            document.getElementById('pause-overlay').style.display = 'none';
+            
             gameState.active = true; gameState.paused = false; gameState.score = 0; gameState.rockets = []; gameState.currentInput = "";
-            document.querySelectorAll('.rocket').forEach(el => el.remove()); updateScoreUI(); loop(); scheduleSpawn();
+            document.querySelectorAll('.rocket').forEach(el => el.remove());
+            updateScoreUI(); loop(); scheduleSpawn();
         }
-        function togglePause() { gameState.paused = !gameState.paused; document.getElementById('pause-overlay').style.display = gameState.paused ? 'flex' : 'none'; if(!gameState.paused) { loop(); scheduleSpawn(); } else { clearTimeout(gameState.spawnTimer); } }
-        function quitGame() { gameState.active = false; saveScore(); backToMenu(); }
-        function scheduleSpawn() { if(!gameState.active || gameState.paused) return; gameState.spawnTimer = setTimeout(() => { spawnRocket(); scheduleSpawn(); }, gameState.spawnRate); }
+
+        function togglePause() {
+            gameState.paused = !gameState.paused;
+            document.getElementById('pause-overlay').style.display = gameState.paused ? 'flex' : 'none';
+            if(!gameState.paused) { loop(); scheduleSpawn(); } else { clearTimeout(gameState.spawnTimer); }
+        }
+
+        function quitGame() {
+            gameState.active = false;
+            saveScore();
+            backToMenu();
+        }
+
+        function scheduleSpawn() {
+            if(!gameState.active || gameState.paused) return;
+            gameState.spawnTimer = setTimeout(() => { spawnRocket(); scheduleSpawn(); }, gameState.spawnRate);
+        }
+
         function spawnRocket() {
-            if(gameState.paused) return; const words = dbParole[gameState.level]; const text = words[Math.floor(Math.random() * words.length)];
-            const div = document.createElement('div'); div.className = 'rocket'; div.innerText = text; div.style.left = Math.floor(Math.random() * (window.innerWidth - 200) + 50) + "px"; div.style.top = "-60px";
-            document.getElementById('game-interface').appendChild(div); gameState.rockets.push({ element: div, text: text, y: -60 });
+            if(gameState.paused) return;
+            const words = dbParole[gameState.level];
+            const text = words[Math.floor(Math.random() * words.length)];
+            const div = document.createElement('div');
+            div.className = 'rocket'; div.innerText = text;
+            div.style.left = Math.floor(Math.random() * (window.innerWidth - 200) + 50) + "px";
+            div.style.top = "-60px";
+            document.getElementById('game-interface').appendChild(div);
+            gameState.rockets.push({ element: div, text: text, y: -60 });
         }
+
         function loop() {
             if(!gameState.active || gameState.paused) return;
-            gameState.rockets.forEach((r, i) => { r.y += gameState.fallSpeed; r.element.style.top = r.y + "px"; if(r.y > window.innerHeight - 50) gameOver(); });
+            gameState.rockets.forEach((r, i) => {
+                r.y += gameState.fallSpeed; r.element.style.top = r.y + "px";
+                if(r.y > window.innerHeight - 50) gameOver();
+            });
             if(gameState.active) requestAnimationFrame(loop);
         }
+
         document.addEventListener('keydown', (e) => {
             if(!gameState.active || gameState.paused) return;
-            if(e.key === 'Backspace') gameState.currentInput = gameState.currentInput.slice(0, -1); else if(e.key.length === 1) gameState.currentInput += e.key.toUpperCase();
-            const disp = document.getElementById('input-display'); disp.innerText = gameState.currentInput;
+            if(e.key === 'Backspace') gameState.currentInput = gameState.currentInput.slice(0, -1);
+            else if(e.key.length === 1) gameState.currentInput += e.key.toUpperCase();
+            const disp = document.getElementById('input-display');
+            disp.innerText = gameState.currentInput;
             const matchIdx = gameState.rockets.findIndex(r => r.text === gameState.currentInput);
-            if(matchIdx !== -1) { gameState.rockets[matchIdx].element.remove(); gameState.rockets.splice(matchIdx, 1); gameState.score += 10; gameState.currentInput = ""; disp.innerText = ""; disp.style.borderColor = "#4ade80"; setTimeout(()=>disp.style.borderColor="#38bdf8",200); updateScoreUI(); }
+            if(matchIdx !== -1) {
+                gameState.rockets[matchIdx].element.remove();
+                gameState.rockets.splice(matchIdx, 1);
+                gameState.score += 10; gameState.currentInput = ""; disp.innerText = "";
+                disp.style.borderColor = "#4ade80"; setTimeout(()=>disp.style.borderColor="#38bdf8",200);
+                updateScoreUI();
+            }
         });
         function updateScoreUI() { document.getElementById('score').innerText = gameState.score; }
         function gameOver() { gameState.active = false; alert("GAME OVER! Punti: " + gameState.score); saveScore(); backToMenu(); }
