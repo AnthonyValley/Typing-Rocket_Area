@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Rocket - DECOLLO 🚀</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;700&display=swap');
+        
+        /* PALETTE BLU NOTTE REALE (Zero Viola) */
+        :root { 
+            --bg-color: #020617; /* Nero Bluastro */
+            --accent-color: #38bdf8; /* Azzurro Ciano */
+            --danger-color: #fb7185; 
+            --text-color: #f8fafc; 
+            --panel-bg: rgba(2, 6, 23, 0.95); 
+            --gold: #fbbf24; 
+        }
+        
+        body { margin: 0; overflow: hidden; background-color: var(--bg-color); color: var(--text-color); font-family: 'Lexend', Verdana, sans-serif; user-select: none; 
+            /* Sfondo Deep Ocean (Blu Abisso) */
+            background: linear-gradient(to bottom, #020617 0%, #0f172a 100%);
+        }
+        
+        /* Stelle animate */
+        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle infinite alternate; }
+        @keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        /* Schermate a tutto schermo */
+        .screen { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; flex-direction: column; justify-content: center; align-items: center; 
+            background: rgba(2, 6, 23, 0.98); /* Blu scurissimo puro */
+            z-index: 10; 
+        }
+        #login-screen { display: flex; }
+        
+        /* ANIMAZIONE RAZZO NEL TITOLO */
+        .title-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px var(--accent-color); text-align: center; color: white; margin: 0; }
+        .title-rocket { font-size: 3.5rem; animation: floatRocket 3s ease-in-out infinite; display: inline-block; }
+        
+        @keyframes floatRocket {
+            0%, 100% { transform: translateY(0) rotate(-45deg); }
+            50% { transform: translateY(-15px) rotate(-45deg); }
+        }
+        
+        /* FIRMA ANTHONYVALLEY */
+        .footer-credit {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            opacity: 0.6;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        /* Input e Bottoni */
+        .form-group { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+        
+        input, select { 
+            padding: 15px 20px; font-size: 1.1rem; border-radius: 12px; 
+            border: 2px solid var(--accent-color); 
+            background: #0f172a; 
+            color: white; outline: none; width: 280px; text-align: center; transition: 0.3s; 
+        }
+        select option { background-color: #0f172a; color: white; }
+        input:focus, select:focus { box-shadow: 0 0 20px var(--accent-color); border-color: white; }
+        
+        button { 
+            margin-top: 20px; padding: 15px 40px; font-size: 1.3rem; 
+            background: linear-gradient(45deg, #0ea5e9, #3b82f6); 
+            color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.2s; 
+            box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4); 
+        }
+        button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.6); }
+        .secondary-btn { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); box-shadow: none; font-size: 1rem; padding: 10px 20px; }
+        
+        /* TAB PER LE CLASSIFICHE */
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { padding: 8px 15px; font-size: 0.9rem; border: 1px solid var(--accent-color); border-radius: 20px; background: rgba(0,0,0,0.3); color: var(--text-color); cursor: pointer; margin-top: 0; box-shadow: none; }
+        .tab-btn.active { background: var(--accent-color); color: #020617; font-weight: bold; }
+
+        /* Interfaccia di Gioco */
+        #game-interface { display: none; width: 100%; height: 100vh; position: relative; }
+        #hud-top { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 5; font-size: 1.3rem; font-weight: bold; text-shadow: 0 0 5px black; }
+        .hud-item { background: rgba(15, 23, 42, 0.9); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--accent-color); display: flex; gap: 10px; color: white; }
+        
+        /* Display Input */
+        #input-display { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); font-size: 2.5rem; padding: 10px 50px; border-radius: 15px; background: rgba(15, 23, 42, 0.9); border: 2px solid var(--accent-color); min-width: 250px; text-align: center; box-shadow: 0 0 20px var(--accent-color); color: white; height: 60px; line-height: 60px; }
+        
+        /* RAZZO + TESTO SEPARATI */
+        .rocket-container { 
+            position: absolute; display: flex; flex-direction: column; align-items: center; 
+            filter: drop-shadow(0 0 15px var(--accent-color)); 
+        }
+        .rocket-icon { font-size: 60px; transform: rotate(-45deg); z-index: 1; margin-bottom: 15px; }
+        .rocket-text { 
+            padding: 10px 20px; background: #0f172a; border: 3px solid var(--accent-color); border-radius: 10px; 
+            font-size: 1.8rem; font-weight: bold; color: white; z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+        
+        /* POP-UP UNICO */
+        .overlay-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
+        .popup-content { background: #1e293b; padding: 40px; border-radius: 20px; border: 2px solid var(--accent-color); text-align: center; box-shadow: 0 0 50px rgba(56, 189, 248, 0.2); max-width: 400px; }
+        .popup-title { font-size: 2rem; margin-bottom: 20px; color: white; }
+        .popup-msg { font-size: 1.2rem; margin-bottom: 30px; color: #cbd5e1; }
+        
+        #history-list { list-style: none; padding: 0; width: 90%; max-width: 500px; max-height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        #history-list li { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div id="stars-container" class="stars"></div>
+
+    <div id="alert-overlay" class="overlay-popup">
+        <div class="popup-content">
+            <h2 class="popup-title" id="alert-title" style="color:var(--danger-color)">ATTENZIONE</h2>
+            <p class="popup-msg" id="alert-msg">Messaggio di sistema</p>
+            <button onclick="closeAlert()">OK</button>
+        </div>
+    </div>
+
+    <div id="login-screen" class="screen">
+        <div class="title-container">
+            <h1>Typing Rocket</h1>
+            <div class="title-rocket">🚀</div>
+        </div>
+        
+        <div class="form-group">
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+        </div>
+        <button onclick="doLogin()">ACCENDI MOTORI</button>
+        <p id="login-msg" style="font-size: 0.9rem; color: var(--gold); margin-top:15px;"></p>
+        
+        <div class="footer-credit">Designed by AnthonyValley</div>
+    </div>
+
+    <div id="menu-screen" class="screen">
+        <h1>BENVENUTO PILOTA <span id="display-user" style="color:var(--accent-color)"></span></h1>
+        <p style="margin-bottom: 20px; font-size: 1.2rem;">Scegli la tua missione:</p>
+        <div class="form-group">
+            <select id="difficulty-select">
+                <option value="elementari">Elementari</option>
+                <option value="medie">Medie</option>
+                <option value="superiori">Superiori</option>
+            </select>
+        </div>
+        <button onclick="startGame()">DECOLLO! 🚀</button>
+        <br><button class="secondary-btn" onclick="showHistory()">ALBO D'ORO 🏆</button>
+        <br><button class="secondary-btn" onclick="logout()" style="border-color:#64748b; color:#64748b">ESCI</button>
+        
+        <div class="footer-credit">Designed by AnthonyValley</div>
+    </div>
+
+    <div id="history-screen" class="screen">
+        <h2 style="color:var(--gold); font-size: 2.5rem; margin-bottom: 20px;">Albo d'Oro 🏆</h2>
+        
+        <div class="tabs-container">
+            <button class="tab-btn active" id="btn-elem" onclick="fetchLeaderboard('elementari')">Elementari</button>
+            <button class="tab-btn" id="btn-med" onclick="fetchLeaderboard('medie')">Medie</button>
+            <button class="tab-btn" id="btn-sup" onclick="fetchLeaderboard('superiori')">Superiori</button>
+        </div>
+
+        <ul id="history-list">Caricamento...</ul>
+        <button class="secondary-btn" onclick="backToMenu()" style="margin-top: 20px;">INDIETRO</button>
+    </div>
+
+    <div id="game-interface">
+        <div id="hud-top">
+            <div class="hud-item">Liv: <span id="level-label" style="color:var(--accent-color)">...</span></div>
+            <div class="hud-item">Tempo: <span id="timer" style="color:var(--accent-color)">0</span>s</div>
+            <div class="hud-item">Punti: <span id="score" style="color:var(--gold)">0</span></div>
+            <button id="pause-btn" onclick="togglePause()" style="font-size:1rem; padding: 8px 20px; margin:0; border-radius: 12px;">PAUSA ⏸️</button>
+        </div>
+        
+        <div id="input-display">...</div>
+
+        <div id="pause-overlay" class="overlay-popup">
+            <div class="popup-content">
+                <h2 class="popup-title">PAUSA</h2>
+                <button onclick="togglePause()">RIPRENDI</button>
+                <br>
+                <button class="secondary-btn" onclick="quitGame()" style="margin-top:10px">ABBANDONA</button>
+            </div>
+        </div>
+
+        <div id="gameover-overlay" class="overlay-popup">
+            <div class="popup-content">
+                <h2 class="popup-title" style="color:var(--danger-color)">MISSIONE FALLITA! 💥</h2>
+                <p class="popup-msg">Un razzo è scappato!</p>
+                <h3 style="color:var(--gold); font-size: 1.8rem; margin-bottom: 20px;">PUNTI: <span id="final-score">0</span></h3>
+                <button onclick="startGame()">RIPROVA 🚀</button>
+                <br>
+                <button class="secondary-btn" onclick="backToMenu()" style="margin-top:10px">MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GENERATORE DI STELLE (200!)
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            for(let i=0; i<200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                const size = Math.random() * 3; 
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.animationDuration = (Math.random() * 3 + 1) + 's';
+                star.style.animationDelay = Math.random() + 's';
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        var SUPABASE_URL = 'https://ukmwguhqvjfomwbevdaa.supabase.co'; 
+        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrbXdndWhxdmpmb213YmV2ZGFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3NTA4MjcsImV4cCI6MjA4NDMyNjgyN30.6suoez0xLoAJ_VjNdz63xVMikH9n7lUvSx0BvQWFM68'; 
+
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // CONTENUTI
+        const alfabeto = "ABCDEFGHILMNOPQRSTUVZ".split(''); 
+        const paroleBrevi = ["CASA", "MARE", "SOLE", "LUNA", "FIORE", "PANE", "LUCE", "ERBA", "CIELO", "GATTO", "CANE", "MELA", "PERA", "ORO", "BLU", "VIA"];
+        const paroleLunghe = ["STORIA", "FISICA", "LATINO", "INGLESE", "CHIMICA", "SCIENZE", "MUSICA", "POESIA", "METODO", "DISEGNO", "STUDIO", "SCUOLA", "AMICI", "VIAGGIO", "FUTURO", "NATURA"];
+
+        var dbContenuti = {
+            elementari: alfabeto, 
+            medie: [...alfabeto, ...paroleBrevi], 
+            superiori: [...alfabeto, ...paroleLunghe] 
+        };
+
+        var currentUser = null;
+        var gameState = { active: false, paused: false, score: 0, level: 'elementari', rockets: [], spawnRate: 2000, riseSpeed: 1, currentInput: "", spawnTimer: null, startTime: 0, timerInterval: null };
+
+        function showAlert(title, msg) {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-msg').innerText = msg;
+            document.getElementById('alert-overlay').style.display = 'flex';
+        }
+        function closeAlert() {
+            document.getElementById('alert-overlay').style.display = 'none';
+        }
+
+        async function doLogin() {
+            var u = document.getElementById('username').value.trim();
+            var p = document.getElementById('password').value.trim();
+            var msg = document.getElementById('login-msg');
+            
+            if(!u || !p) { showAlert("ERRORE", "Inserisci Username e Password"); return; }
+            msg.innerText = "Connessione...";
+            
+            var { data: users, error } = await supabase.from('utenti').select('*').eq('username', u);
+            
+            if (error) { showAlert("ERRORE DI RETE", "Controlla la connessione"); msg.innerText = ""; return; }
+            
+            if (users.length > 0) {
+                if (users[0].password === p) proceedToMenu(u);
+                else { msg.innerText = ""; showAlert("ACCESSO NEGATO", "Password errata."); }
+            } else {
+                var { error: insertError } = await supabase.from('utenti').insert([{ username: u, password: p }]);
+                if(!insertError) { proceedToMenu(u); }
+                else { msg.innerText = ""; showAlert("ERRORE", "Impossibile creare utente."); }
+            }
+        }
+
+        function proceedToMenu(u) {
+            currentUser = u;
+            document.getElementById('display-user').innerText = u.toUpperCase();
+            document.getElementById('login-msg').innerText = "";
+            showScreen('menu-screen');
+        }
+
+        async function saveScore() {
+            if(!currentUser || gameState.score === 0) return;
+            await supabase.from('partite').insert([{ username: currentUser, score: gameState.score, livello: gameState.level }]);
+        }
+
+        function showHistory() {
+            showScreen('history-screen');
+            fetchLeaderboard('elementari');
+        }
+
+        async function fetchLeaderboard(category) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(category === 'elementari') document.getElementById('btn-elem').classList.add('active');
+            if(category === 'medie') document.getElementById('btn-med').classList.add('active');
+            if(category === 'superiori') document.getElementById('btn-sup').classList.add('active');
+
+            var list = document.getElementById('history-list');
+            list.innerHTML = "Caricamento...";
+            
+            var { data: scores, error } = await supabase
+                .from('partite')
+                .select('*')
+                .eq('livello', category) 
+                .order('score', { ascending: false })
+                .limit(10);
+            
+            list.innerHTML = "";
+            if (!scores || scores.length === 0) list.innerHTML = "<li>Nessun record per " + category + ".</li>";
+            else {
+                scores.forEach((row, index) => {
+                    var li = document.createElement('li');
+                    let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                    li.innerHTML = `<span>${medal} <b>${row.username}</b></span> <span style="color:var(--gold); font-weight:bold;">${row.score}</span>`;
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            document.getElementById('game-interface').style.display = 'none';
+            document.getElementById('alert-overlay').style.display = 'none';
+            document.getElementById(id).style.display = 'flex';
+        }
+        function logout() { currentUser = null; document.getElementById('username').value=""; document.getElementById('password').value=""; showScreen('login-screen'); }
+        function backToMenu() { showScreen('menu-screen'); }
+
+        function startGame() {
+            gameState.level = document.getElementById('difficulty-select').value;
+            // VELOCITÀ AGGIORNATE
+            if(gameState.level === 'elementari') { gameState.riseSpeed = 0.7; gameState.spawnRate = 2800; }
+            if(gameState.level === 'medie') { gameState.riseSpeed = 1.1; gameState.spawnRate = 2300; }
+            if(gameState.level === 'superiori') { gameState.riseSpeed = 1.6; gameState.spawnRate = 1800; }
+            
+            showScreen('game-interface');
+            document.getElementById('game-interface').style.display = 'block';
+            document.getElementById('level-label').innerText = gameState.level.toUpperCase();
+            document.getElementById('pause-overlay').style.display = 'none';
+            document.getElementById('gameover-overlay').style.display = 'none'; 
+            
+            gameState.active = true; gameState.paused = false; gameState.score = 0; gameState.rockets = []; gameState.currentInput = "";
+            document.querySelectorAll('.rocket-container').forEach(el => el.remove());
+            document.getElementById('score').innerText = "0";
+            document.getElementById('input-display').innerText = "";
+            
+            gameState.startTime = Date.now();
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(updateTimerUI, 1000);
+            updateTimerUI(); 
+
+            loop(); scheduleSpawn();
+        }
+
+        function updateTimerUI() {
+            if(gameState.paused) return;
+            let elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            document.getElementById('timer').innerText = elapsed;
+        }
+
+        function togglePause() {
+            gameState.paused = !gameState.paused;
+            document.getElementById('pause-overlay').style.display = gameState.paused ? 'flex' : 'none';
+            if(!gameState.paused) { 
+                gameState.startTime = Date.now() - (parseInt(document.getElementById('timer').innerText) * 1000);
+                loop(); scheduleSpawn(); 
+            } else { clearTimeout(gameState.spawnTimer); }
+        }
+
+        function quitGame() {
+            gameState.active = false;
+            clearInterval(gameState.timerInterval); 
+            saveScore();
+            backToMenu();
+        }
+
+        function scheduleSpawn() {
+            if(!gameState.active || gameState.paused) return;
+            gameState.spawnTimer = setTimeout(() => { spawnRocket(); scheduleSpawn(); }, gameState.spawnRate);
+        }
+
+        function spawnRocket() {
+            if(gameState.paused) return;
+            var contentList = dbContenuti[gameState.level];
+            var text = contentList[Math.floor(Math.random() * contentList.length)];
+            
+            var container = document.createElement('div');
+            container.className = 'rocket-container';
+            container.innerHTML = `<div class="rocket-icon">🚀</div><div class="rocket-text">${text}</div>`;
+            
+            var randomX = Math.floor(Math.random() * (window.innerWidth - 200) + 50);
+            container.style.left = randomX + "px";
+            
+            var startY = window.innerHeight + 100;
+            container.style.top = startY + "px";
+            
+            document.getElementById('game-interface').appendChild(container);
+            gameState.rockets.push({ element: container, text: text, y: startY });
+        }
+
+        function loop() {
+            if(!gameState.active || gameState.paused) return;
+            gameState.rockets.forEach((r, i) => {
+                r.y -= gameState.riseSpeed; 
+                r.element.style.top = r.y + "px";
+                if(r.y < -150) gameOver();
+            });
+            if(gameState.active) requestAnimationFrame(loop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if(!gameState.active || gameState.paused) return;
+
+            if(e.key === 'Backspace') {
+                gameState.currentInput = gameState.currentInput.slice(0, -1);
+            } 
+            else if(e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
+                var letter = e.key.toUpperCase();
+                var tempInput = gameState.currentInput + letter;
+
+                var existsPrefix = gameState.rockets.some(r => r.text.startsWith(tempInput));
+
+                if(existsPrefix) {
+                    gameState.currentInput += letter;
+                } else {
+                    var disp = document.getElementById('input-display');
+                    disp.style.borderColor = "var(--danger-color)";
+                    setTimeout(()=>disp.style.borderColor="var(--accent-color)", 200);
+                    gameState.currentInput = ""; 
+                }
+            }
+            
+            var disp = document.getElementById('input-display');
+            disp.innerText = gameState.currentInput;
+            
+            var matchIdx = gameState.rockets.findIndex(r => r.text === gameState.currentInput);
+            if(matchIdx !== -1) {
+                var hitRocket = gameState.rockets[matchIdx].element;
+                hitRocket.style.transform = "scale(1.5) rotate(360deg)";
+                hitRocket.style.opacity = "0";
+                setTimeout(() => hitRocket.remove(), 300); 
+
+                gameState.rockets.splice(matchIdx, 1);
+                
+                let points = 10;
+                if (gameState.level === 'medie' && gameState.currentInput.length > 1) points = 20;
+                if (gameState.level === 'superiori' && gameState.currentInput.length > 1) points = 30;
+                
+                gameState.score += points; 
+                gameState.currentInput = ""; 
+                disp.innerText = "";
+                document.getElementById('score').innerText = gameState.score;
+            }
+        });
+        
+        function gameOver() { 
+            gameState.active = false; 
+            clearInterval(gameState.timerInterval); 
+            document.getElementById('final-score').innerText = gameState.score;
+            document.getElementById('gameover-overlay').style.display = 'flex';
+            saveScore(); 
+        }
+    </script>
+</body>
+</html>
