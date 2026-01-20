@@ -182,7 +182,7 @@
         </div>
         <button onclick="doLogin()">ACCENDI I MOTORI</button>
         <p id="login-msg" style="font-size: 0.9rem; color: var(--gold); margin-top:15px;"></p>
-        <div class="footer-container"><div class="footer-credit">Designed by AnthonyValley</div></div>
+        <div class="footer-container"><div class="footer-credit">Creation by AnthonyValley</div></div>
     </div>
 
     <div id="menu-screen" class="screen">
@@ -225,7 +225,7 @@
         <button onclick="startGame()">DECOLLO! 🚀</button>
         <br><button class="secondary-btn" onclick="showHistory()">ALBO D'ORO 🏆</button>
         <br><button class="secondary-btn" onclick="logout()" style="border-color:#64748b; color:#64748b">ESCI</button>
-        <div class="footer-container"><div class="footer-credit">Designed by AnthonyValley</div></div>
+        <div class="footer-container"><div class="footer-credit">Creation by AnthonyValley</div></div>
     </div>
 
     <div id="history-screen" class="screen">
@@ -273,7 +273,7 @@
     <script>
         function createStars() {
             const container = document.getElementById('stars-container');
-            for(let i=0; i<200; i++) {
+            for(let i=0; i<150; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
@@ -505,6 +505,7 @@
             if(gameState.active) requestAnimationFrame(loop);
         }
 
+        // FUNZIONE UNICA DI CONTROLLO INPUT (Per evitare doppi colpi)
         function handleInput(char) {
             if(!gameState.active || gameState.paused) return;
             var inputChar = char.toUpperCase();
@@ -546,7 +547,7 @@
             }
         });
 
-        // INPUT EVENT: Gestisce caratteri sia da PC che da Mobile
+        // INPUT EVENT: Gestisce caratteri sia da PC che da Mobile (SOLO QUI PER EVITARE DOPPI)
         document.getElementById('mobile-input').addEventListener('input', (e) => {
             if(!gameState.active || gameState.paused) return;
             var val = e.target.value;
