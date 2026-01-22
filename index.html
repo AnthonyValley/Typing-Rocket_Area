@@ -2,11 +2,14 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Typing Rocket - Gioco Didattico</title>
-    <meta name="description" content="Typing Rocket: Un gioco educativo spaziale per migliorare la velocità di scrittura.">
+    <title>Typing Rocket - AnthonyValley</title>
+    <meta name="description" content="Typing Rocket: Gioco educativo di dattilografia spaziale creato da AnthonyValley.">
+    <meta name="keywords" content="Typing Rocket, AnthonyValley, Dattilografia, Scuola, Gioco Educativo, Typing Game">
     <meta name="author" content="AnthonyValley">
+    <meta name="robots" content="index, follow">
+    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -24,7 +27,6 @@
         
         body { margin: 0; overflow: hidden; background-color: var(--bg-color); color: var(--text-color); font-family: 'Lexend', Verdana, sans-serif; user-select: none; 
             background: linear-gradient(to bottom, #020617 0%, #0f172a 100%);
-            touch-action: none; 
         }
         
         /* Stelle */
@@ -32,17 +34,30 @@
         .star { position: absolute; background: white; border-radius: 50%; animation: twinkle infinite alternate; }
         @keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.2); } }
 
+        /* BLOCCO MOBILE */
+        #mobile-warning {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020617; z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
+        }
+        
+        @media only screen and (max-width: 900px) {
+            #mobile-warning { display: flex !important; }
+            .screen, #game-interface, .stars { display: none !important; }
+        }
+
         /* Schermate */
         .screen { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: none; flex-direction: column; justify-content: center; align-items: center; 
             background: rgba(2, 6, 23, 0.98); 
-            z-index: 10; padding: 20px; box-sizing: border-box;
+            z-index: 10; 
         }
         #login-screen { display: flex; }
         
         /* Titoli e Animazioni */
-        .title-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .title-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px var(--accent-color); text-align: center; color: white; margin: 0; }
         .title-rocket { font-size: 3.5rem; animation: floatRocket 3s ease-in-out infinite; display: inline-block; }
         @keyframes floatRocket { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-15px) rotate(-45deg); } }
@@ -52,37 +67,68 @@
         .footer-credit { font-size: 0.9rem; color: var(--accent-color); opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; font-weight: 300; }
 
         /* Input UI */
-        .form-group { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 300px; }
+        .form-group { 
+            display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; 
+            margin-bottom: 40px; /* SPAZIO EXTRA SOTTO LA TENDINA */
+        }
         
         input[type="text"], input[type="password"] { 
             padding: 15px 20px; font-size: 1.1rem; border-radius: 12px; 
             border: 2px solid var(--accent-color); background: #0f172a; color: white; 
-            outline: none; width: 100%; text-align: center; transition: 0.3s; 
-            box-sizing: border-box;
+            outline: none; width: 280px; text-align: center; transition: 0.3s; 
         }
         
+        /* MENU A TENDINA: GIALLO, TONDO E CENTRATO */
         select { 
-            padding: 15px 20px; font-size: 1.1rem; border-radius: 12px; 
-            border: 2px solid var(--accent-color); background: #0f172a; color: white; 
-            outline: none; width: 100%; text-align: center; transition: 0.3s; 
-            text-transform: uppercase; box-sizing: border-box;
+            padding: 15px 40px; 
+            font-size: 1.1rem; 
+            border-radius: 50px; /* ARROTONDATO A PILLOLA */
+            border: 2px solid var(--accent-color); 
+            background: #0f172a; 
+            color: var(--gold); /* TESTO GIALLO */
+            outline: none; width: 320px; transition: 0.3s; 
+            text-transform: uppercase; 
+            font-weight: bold;
+            cursor: pointer;
+            
+            /* CENTRATURA PERFETTA */
+            text-align: center; 
+            text-align-last: center; 
+            -moz-text-align-last: center;
+            
+            /* RESET GRAFICA BROWSER */
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
+            
+            /* FRECCETTA CUSTOM */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fbbf24'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 20px center; background-size: 24px;
         }
-        select option { background-color: #0f172a; color: white; }
+        select option { background-color: #0f172a; color: var(--gold); text-align: center; padding: 10px; }
         input:focus, select:focus { box-shadow: 0 0 20px var(--accent-color); border-color: white; }
         
-        button { margin-top: 20px; padding: 15px 40px; font-size: 1.3rem; background: linear-gradient(45deg, #0ea5e9, #3b82f6); color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4); text-transform: uppercase; white-space: nowrap; }
+        button { margin-top: 10px; padding: 15px 40px; font-size: 1.3rem; background: linear-gradient(45deg, #0ea5e9, #3b82f6); color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4); text-transform: uppercase; }
         button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.6); }
         .secondary-btn { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); box-shadow: none; font-size: 1rem; padding: 10px 20px; }
         
+        /* TASTO MANUALE */
+        .tutorial-btn {
+            position: absolute; top: 30px; right: 30px;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--accent-color);
+            color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;
+            cursor: pointer; transition: 0.3s; z-index: 20; text-transform: uppercase;
+            box-shadow: none; margin: 0;
+        }
+        .tutorial-btn:hover { background: var(--accent-color); color: #020617; }
+
         /* IMPOSTAZIONI CUSTOM */
         .custom-panel { 
             background: #1e293b; padding: 25px; border-radius: 15px; border: 2px solid var(--accent-color); 
-            text-align: left; width: 100%; max-width: 320px; margin-top: 15px; display: none; 
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15); box-sizing: border-box;
+            text-align: left; width: 320px; margin-top: 15px; display: none; 
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
         }
         .custom-row { margin-bottom: 20px; width: 100%; }
         .custom-label { font-size: 0.85rem; color: var(--accent-color); margin-bottom: 8px; display: block; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
-        .checkbox-group { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .checkbox-group { display: flex; gap: 20px; align-items: center; }
         .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
         input[type="checkbox"] { width: 22px; height: 22px; border-color: var(--accent-color); accent-color: var(--accent-color); cursor: pointer; }
         
@@ -99,70 +145,59 @@
         }
 
         /* Tabs e Classifiche */
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { padding: 8px 15px; font-size: 0.9rem; border: 1px solid var(--accent-color); border-radius: 20px; background: rgba(0,0,0,0.3); color: var(--text-color); cursor: pointer; box-shadow: none; text-transform: uppercase; }
         .tab-btn.active { background: var(--accent-color); color: #020617; font-weight: bold; }
-        #history-list { list-style: none; padding: 0; width: 100%; max-width: 500px; max-height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        #history-list { list-style: none; padding: 0; width: 90%; max-width: 500px; max-height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; }
         #history-list li { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 1.1rem; }
 
+        /* LISTA CLASSIFICA DENTRO GAME OVER */
+        #gameover-leaderboard {
+            list-style: none; padding: 0; width: 100%; max-height: 200px; overflow-y: auto;
+            background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #gameover-leaderboard li {
+            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; font-size: 1rem;
+        }
+
         /* Gioco e HUD */
-        #game-interface { display: none; width: 100%; height: 100vh; position: relative; overflow: hidden; }
-        #hud-top { 
-            position: absolute; top: 20px; left: 20px; right: 20px; 
-            display: flex; justify-content: space-between; align-items: center; z-index: 5; 
-            font-size: 1.3rem; font-weight: bold; text-shadow: 0 0 5px black;
-        }
-        .hud-item { 
-            background: rgba(15, 23, 42, 0.9); padding: 10px 20px; border-radius: 12px; 
-            border: 1px solid var(--accent-color); display: flex; gap: 10px; color: white; text-transform: uppercase; 
-            white-space: nowrap;
-        }
+        #game-interface { display: none; width: 100%; height: 100vh; position: relative; }
+        #hud-top { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 5; font-size: 1.3rem; font-weight: bold; text-shadow: 0 0 5px black; }
+        .hud-item { background: rgba(15, 23, 42, 0.9); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--accent-color); display: flex; gap: 10px; color: white; text-transform: uppercase; }
         
-        /* --- STILE INPUT DISPLAY (RETTANGOLO) --- */
         #input-display { 
-            position: absolute; 
-            bottom: 40px; /* PC: Posizione originale in basso */
-            left: 50%; transform: translateX(-50%); 
-            font-size: 2.5rem; /* PC: Testo grande */
-            padding: 10px 50px; 
-            border-radius: 15px; 
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); 
+            font-size: 2.5rem; padding: 10px 50px; border-radius: 15px; 
             background: rgba(15, 23, 42, 0.9); border: 2px solid var(--accent-color); 
-            min-width: 300px; /* PC: Rettangolo largo */
-            text-align: center; box-shadow: 0 0 20px var(--accent-color); 
+            min-width: 300px; text-align: center; box-shadow: 0 0 20px var(--accent-color); 
             color: white; height: 60px; line-height: 60px; text-transform: uppercase; pointer-events: none;
         }
         
-        /* --- ADATTAMENTO PER TELEFONI (Responsive) --- */
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .title-rocket { font-size: 2.5rem; }
-            #hud-top { top: 10px; left: 10px; right: 10px; font-size: 0.9rem; }
-            .hud-item { padding: 6px 10px; border-radius: 8px; font-size: 0.8rem; }
-            
-            #input-display {
-                bottom: 40%; /* MOBILE: Si sposta in alto per la tastiera */
-                font-size: 1.8rem; /* MOBILE: Testo un po' più piccolo */
-                min-width: 200px; /* MOBILE: Meno largo */
-                padding: 10px 20px;
-            }
-        }
-
-        /* INPUT NASCOSTO FONDAMENTALE PER MOBILE */
-        #mobile-input {
-            position: absolute; opacity: 0; top: -1000px; left: -1000px;
-        }
-
         /* Razzo */
         .rocket-container { position: absolute; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 0 15px var(--accent-color)); width: 200px; text-align: center; }
         .rocket-icon { font-size: 60px; transform: rotate(-45deg); z-index: 1; margin-bottom: 15px; }
         .rocket-text { padding: 10px 15px; background: #0f172a; border: 3px solid var(--accent-color); border-radius: 10px; font-size: 1.5rem; font-weight: bold; color: white; z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.5); letter-spacing: 2px; white-space: nowrap; }
 
         /* Popups */
-        .overlay-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50; padding: 20px; box-sizing: border-box; }
-        .popup-content { background: #1e293b; padding: 40px; border-radius: 20px; border: 2px solid var(--accent-color); text-align: center; box-shadow: 0 0 50px rgba(56, 189, 248, 0.2); width: 100%; max-width: 400px; box-sizing: border-box;}
+        .overlay-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
+        .popup-content { background: #1e293b; padding: 40px; border-radius: 20px; border: 2px solid var(--accent-color); text-align: center; box-shadow: 0 0 50px rgba(56, 189, 248, 0.2); max-width: 500px; width: 90%; }
+        .tutorial-text p { font-size: 1.1rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 15px; }
+        .tutorial-level { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
     </style>
 </head>
 <body>
+
+    <div id="mobile-warning">
+        <div style="font-size: 4rem; margin-bottom: 20px;">⛔</div>
+        <h1 style="font-size: 2rem; color: var(--danger-color); margin-bottom: 20px;">ATTENZIONE PILOTA!</h1>
+        <p style="font-size: 1.2rem; color: white; line-height: 1.6; max-width: 80%;">
+            Questo sito non è ottimizzato per smartphone.<br><br>
+            Il gioco richiede una <b>TASTIERA FISICA</b>.<br>
+            Accedi da <b>PC o Tablet con tastiera</b> per iniziare la missione.
+        </p>
+    </div>
 
     <div id="stars-container" class="stars"></div>
 
@@ -171,6 +206,20 @@
             <h2 id="alert-title" style="color:var(--danger-color); font-size:2rem; margin-bottom:20px;">ATTENZIONE</h2>
             <p id="alert-msg" style="color:#cbd5e1; font-size:1.2rem; margin-bottom:30px;">Messaggio</p>
             <button onclick="closeAlert()">OK</button>
+        </div>
+    </div>
+
+    <div id="tutorial-overlay" class="overlay-popup">
+        <div class="popup-content">
+            <h2 style="color:var(--accent-color); font-size:2rem; margin-bottom:20px;">MANUALE DI VOLO 📘</h2>
+            <div class="tutorial-text" style="text-align: left;">
+                <p><span class="tutorial-level">LIVELLO 1:</span><br>Lettere singole e parole brevi. Ideale per imparare la tastiera.</p>
+                <p><span class="tutorial-level">LIVELLO 2:</span><br>Parole di media lunghezza. La velocità aumenta leggermente. Perfetto per allenarsi.</p>
+                <p><span class="tutorial-level">LIVELLO 3:</span><br>Parole lunghe e termini specifici. Velocità moderata per permettere la scrittura. Per veri piloti!</p>
+                <p><span class="tutorial-level">🛠️ PERSONALIZZATO:</span><br>Configura la tua missione! Scegli se usare solo lettere, parole, la velocità dei razzi e se attivare la modalità ZEN (senza Game Over).</p>
+                <p style="text-align:center; color:var(--success); font-weight:bold; margin-top:20px;">DURATA PARTITA: 90 SECONDI</p>
+            </div>
+            <button onclick="closeTutorial()">HO CAPITO</button>
         </div>
     </div>
 
@@ -186,20 +235,21 @@
     </div>
 
     <div id="menu-screen" class="screen">
+        <button class="tutorial-btn" onclick="openTutorial()">MANUALE DI VOLO 📘</button>
+        
         <h1>BENVENUTO PILOTA <span id="display-user" style="color:var(--accent-color)"></span></h1>
         <p style="margin-bottom: 20px; font-size: 1.2rem; text-transform:uppercase;">Scegli la tua missione:</p>
         <div class="form-group">
             <select id="difficulty-select" onchange="checkCustomMode()">
-                <option value="elementari">ELEMENTARI</option>
-                <option value="medie">MEDIE</option>
-                <option value="superiori">SUPERIORI</option>
+                <option value="livello1">LIVELLO 1</option>
+                <option value="livello2">LIVELLO 2</option>
+                <option value="livello3">LIVELLO 3</option>
                 <option value="custom" style="font-weight:bold; color:var(--gold);">🛠️ PERSONALIZZATO</option>
             </select>
         </div>
 
         <div id="custom-panel" class="custom-panel">
             <h3 style="color:var(--gold); margin-top:0; margin-bottom:20px; text-transform:uppercase; font-size:1.1rem; text-align:center;">Impostazioni Missione</h3>
-            
             <div class="custom-row">
                 <label class="custom-label">CONTENUTO:</label>
                 <div class="checkbox-group">
@@ -207,12 +257,10 @@
                     <label class="checkbox-item"><input type="checkbox" id="cust-words" checked> PAROLE</label>
                 </div>
             </div>
-
             <div class="custom-row">
                 <label class="custom-label">VELOCITÀ: <span id="speed-val" style="color:white">5</span></label>
                 <input type="range" id="cust-speed" min="1" max="10" value="5" oninput="updateSliderFill(this)">
             </div>
-
             <div class="custom-row">
                 <label class="custom-label">MODALITÀ:</label>
                 <select id="cust-mode" style="width:100%; padding:8px; font-size:0.9rem;">
@@ -229,24 +277,24 @@
     </div>
 
     <div id="history-screen" class="screen">
-        <h2 style="color:var(--gold); font-size: 2.5rem; margin-bottom: 20px;">ALBO D'ORO 🏆</h2>
+        <h2 style="color:var(--gold); font-size: 2.5rem; margin-bottom: 10px;">ALBO D'ORO 🏆</h2>
+        <p id="history-subtitle" style="margin-bottom:20px; color:#cbd5e1; font-size:1.2rem;"></p>
+        
         <div class="tabs-container">
-            <button class="tab-btn active" id="btn-elem" onclick="fetchLeaderboard('elementari')">ELEMENTARI</button>
-            <button class="tab-btn" id="btn-med" onclick="fetchLeaderboard('medie')">MEDIE</button>
-            <button class="tab-btn" id="btn-sup" onclick="fetchLeaderboard('superiori')">SUPERIORI</button>
+            <button class="tab-btn active" id="btn-elem" onclick="fetchLeaderboard('livello1')">LIV. 1</button>
+            <button class="tab-btn" id="btn-med" onclick="fetchLeaderboard('livello2')">LIV. 2</button>
+            <button class="tab-btn" id="btn-sup" onclick="fetchLeaderboard('livello3')">LIV. 3</button>
         </div>
         <ul id="history-list">Caricamento...</ul>
-        <button class="secondary-btn" onclick="backToMenu()" style="margin-top: 20px;">INDIETRO</button>
+        <button class="secondary-btn" onclick="backToMenu()" style="margin-top: 20px;">MENU PRINCIPALE</button>
     </div>
 
-    <div id="game-interface" onclick="ensureFocus()">
-        <input type="text" id="mobile-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-
+    <div id="game-interface">
         <div id="hud-top">
             <div class="hud-item">LIV: <span id="level-label" style="color:var(--accent-color)">...</span></div>
-            <div class="hud-item">TEMPO: <span id="timer" style="color:var(--accent-color)">0</span>s</div>
+            <div class="hud-item">TEMPO: <span id="timer" style="color:var(--accent-color)">90</span>s</div>
             <div class="hud-item" id="score-container">PUNTI: <span id="score" style="color:var(--gold)">0</span></div>
-            <button id="pause-btn" onclick="togglePause(); event.stopPropagation();" style="font-size:1rem; padding: 8px 20px; margin:0; border-radius: 12px;">PAUSA ⏸️</button>
+            <button id="pause-btn" onclick="togglePause()" style="font-size:1rem; padding: 8px 20px; margin:0; border-radius: 12px;">PAUSA ⏸️</button>
         </div>
         <div id="input-display">...</div>
 
@@ -261,11 +309,17 @@
 
         <div id="gameover-overlay" class="overlay-popup">
             <div class="popup-content">
-                <h2 style="color:var(--danger-color); font-size:2rem; margin-bottom:10px;">MISSIONE FALLITA! 💥</h2>
-                <p style="color:#cbd5e1; font-size:1.2rem; margin-bottom:20px;">Un razzo è scappato!</p>
-                <h3 style="color:var(--gold); font-size: 1.8rem; margin-bottom: 20px;">PUNTI: <span id="final-score">0</span></h3>
-                <button onclick="startGame()">RIPROVA 🚀</button><br>
-                <button class="secondary-btn" onclick="backToMenu()" style="margin-top:10px">MENU</button>
+                <h2 id="end-title" style="color:var(--danger-color); font-size:2rem; margin-bottom:5px;">MISSIONE FALLITA! 💥</h2>
+                <p id="end-reason" style="color:#cbd5e1; font-size:1.1rem; margin-bottom:10px;">Un razzo è scappato!</p>
+                <h3 style="color:var(--gold); font-size: 1.5rem; margin-bottom: 15px;">PUNTI: <span id="final-score">0</span></h3>
+                
+                <h4 style="color:var(--accent-color); margin-bottom:5px; text-transform:uppercase; font-size:0.9rem;">🏆 Migliori Piloti 🏆</h4>
+                <ul id="gameover-leaderboard">Caricamento classifica...</ul>
+
+                <div style="display:flex; gap:10px; justify-content:center; width:100%;">
+                    <button class="secondary-btn" onclick="backToMenu()" style="margin:0; flex:1;">MENU</button>
+                    <button onclick="startGame()" style="margin:0; flex:1;">RIPROVA 🚀</button>
+                </div>
             </div>
         </div>
     </div>
@@ -298,22 +352,23 @@
         const sup_words = ["INFORMATICA","LETTERATURA","MATEMATICA","GEOGRAFIA","FILOSOFIA","TECNOLOGIA","PROGRAMMA","SISTEMA","INTERNET","CONNESSIONE","ALGORITMO","VARIABILE","FUNZIONE","DATABASE","SICUREZZA","SVILUPPO","PROGETTO","RELAZIONE","DOCUMENTO","SCRITTURA","TASTIERA","SCHERMO","MEMORIA","DIGITALE","VIRTUALE","SOCIALE","UNIVERSO","GALASSIA","ELETTRICITA","MAGNETISMO","GRAVITA","BIOLOGIA","CHIMICA","MOLECOLA","CELLULA","ENERGIA","AMBIENTE","FUTURO"];
 
         var dbContenuti = { 
-            elementari: [...alfabeto, ...elem_words], 
-            medie: [...alfabeto, ...med_words], 
-            superiori: [...alfabeto, ...sup_words] 
+            livello1: [...alfabeto, ...elem_words], 
+            livello2: [...alfabeto, ...med_words], 
+            livello3: [...alfabeto, ...sup_words] 
         };
 
         var currentUser = null;
-        var gameState = { active: false, paused: false, score: 0, missed: 0, level: 'elementari', rockets: [], spawnRate: 2000, riseSpeed: 1, currentInput: "", spawnTimer: null, startTime: 0, timerInterval: null, lastWords: [], customWords: [], customMode: false, zenMode: false };
+        var gameState = { active: false, paused: false, score: 0, missed: 0, level: 'livello1', rockets: [], spawnRate: 2000, riseSpeed: 1, currentInput: "", spawnTimer: null, timeLeft: 90, timerInterval: null, lastWords: [], customWords: [], customMode: false, zenMode: false };
 
         function showAlert(title, msg) { document.getElementById('alert-title').innerText = title; document.getElementById('alert-msg').innerText = msg; document.getElementById('alert-overlay').style.display = 'flex'; }
         function closeAlert() { document.getElementById('alert-overlay').style.display = 'none'; }
+        function openTutorial() { document.getElementById('tutorial-overlay').style.display = 'flex'; }
+        function closeTutorial() { document.getElementById('tutorial-overlay').style.display = 'none'; }
 
         async function doLogin() {
             var u = document.getElementById('username').value.trim();
             var p = document.getElementById('password').value.trim();
             var msg = document.getElementById('login-msg');
-            
             if(!u || !p) { showAlert("ERRORE", "Inserisci Username e Password"); return; }
             msg.innerText = "Connessione...";
             var { data: users, error } = await supabase.from('utenti').select('*').eq('username', u);
@@ -346,20 +401,58 @@
             await supabase.from('partite').insert([{ username: currentUser, score: gameState.score, livello: gameState.level }]); 
         }
 
-        function showHistory() { showScreen('history-screen'); fetchLeaderboard('elementari'); }
+        function showHistory(fromGame=false) { 
+            showScreen('history-screen');
+            if(fromGame) {
+                document.getElementById('history-subtitle').innerText = "PARTITA TERMINATA - PUNTI: " + gameState.score;
+            } else {
+                document.getElementById('history-subtitle').innerText = "";
+            }
+            var cat = (fromGame && !gameState.customMode) ? gameState.level : 'livello1';
+            fetchLeaderboard(cat); 
+        }
+
         async function fetchLeaderboard(category) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if(category==='elementari') document.getElementById('btn-elem').classList.add('active');
-            if(category==='medie') document.getElementById('btn-med').classList.add('active');
-            if(category==='superiori') document.getElementById('btn-sup').classList.add('active');
+            if(category==='livello1') document.getElementById('btn-elem').classList.add('active');
+            if(category==='livello2') document.getElementById('btn-med').classList.add('active');
+            if(category==='livello3') document.getElementById('btn-sup').classList.add('active');
             var list = document.getElementById('history-list'); list.innerHTML = "Caricamento...";
             var { data: scores } = await supabase.from('partite').select('*').eq('livello', category).order('score', { ascending: false }).limit(10);
             list.innerHTML = "";
             if (!scores || scores.length === 0) list.innerHTML = "<li>Nessun record.</li>";
-            else scores.forEach((row, i) => { var li = document.createElement('li'); li.innerHTML = `<span>${i==0?'🥇':i==1?'🥈':i==2?'🥉':''} <b>${row.username}</b></span> <span style="color:var(--gold);">${row.score}</span>`; list.appendChild(li); });
+            else scores.forEach((row, i) => { 
+                // LOGICA HOME: Top 10 con Medaglie 1-3, Numeri 4-10
+                var rank = (i===0) ? '🥇' : (i===1) ? '🥈' : (i===2) ? '🥉' : (i+1) + '°';
+                var li = document.createElement('li'); 
+                li.innerHTML = `<span>${rank} <b>${row.username}</b></span> <span style="color:var(--gold);">${row.score}</span>`; 
+                list.appendChild(li); 
+            });
         }
 
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-interface').style.display = 'none'; document.getElementById('alert-overlay').style.display = 'none'; document.getElementById(id).style.display = 'flex'; }
+        // FUNZIONE SPECIFICA PER GAME OVER: SOLO TOP 3
+        async function fetchGameOverLeaderboard() {
+            var list = document.getElementById('gameover-leaderboard');
+            list.innerHTML = "<li>Caricamento...</li>";
+            
+            if(gameState.customMode) {
+                list.innerHTML = "<li>Classifica non disponibile in modalità personalizzata</li>";
+                return;
+            }
+
+            var { data: scores } = await supabase.from('partite').select('*').eq('livello', gameState.level).order('score', { ascending: false }).limit(3); // SOLO 3
+            list.innerHTML = "";
+            if (!scores || scores.length === 0) list.innerHTML = "<li>Nessun record.</li>";
+            else scores.forEach((row, i) => { 
+                var isMe = row.username === currentUser && row.score === gameState.score ? "color:var(--accent-color)" : "";
+                var rank = (i===0) ? '🥇' : (i===1) ? '🥈' : '🥉'; // SEMPRE MEDAGLIE (sono solo 3)
+                var li = document.createElement('li'); 
+                li.innerHTML = `<span style="${isMe}">${rank} <b>${row.username}</b></span> <span style="color:var(--gold);">${row.score}</span>`; 
+                list.appendChild(li); 
+            });
+        }
+
+        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-interface').style.display = 'none'; document.getElementById('alert-overlay').style.display = 'none'; document.getElementById('tutorial-overlay').style.display = 'none'; document.getElementById(id).style.display = 'flex'; }
         function logout() { currentUser = null; document.getElementById('username').value=""; document.getElementById('password').value=""; showScreen('login-screen'); }
         function backToMenu() { showScreen('menu-screen'); }
 
@@ -367,12 +460,6 @@
             var val = document.getElementById('difficulty-select').value;
             if(val === 'custom') document.getElementById('custom-panel').style.display = 'block';
             else document.getElementById('custom-panel').style.display = 'none';
-        }
-
-        function ensureFocus() {
-            if(gameState.active && !gameState.paused) {
-                document.getElementById('mobile-input').focus();
-            }
         }
 
         function startGame() {
@@ -397,25 +484,28 @@
                 document.getElementById('level-label').innerText = "CUSTOM";
                 gameState.zenMode = (mode === 'zen');
             } else {
-                if(gameState.level === 'elementari') { gameState.riseSpeed = 0.7; gameState.spawnRate = 2800; }
-                if(gameState.level === 'medie') { gameState.riseSpeed = 1.1; gameState.spawnRate = 2300; }
-                if(gameState.level === 'superiori') { gameState.riseSpeed = 1.3; gameState.spawnRate = 2100; }
-                document.getElementById('level-label').innerText = gameState.level.toUpperCase();
+                if(gameState.level === 'livello1') { gameState.riseSpeed = 0.7; gameState.spawnRate = 2800; document.getElementById('level-label').innerText = "LIVELLO 1"; }
+                if(gameState.level === 'livello2') { gameState.riseSpeed = 1.1; gameState.spawnRate = 2300; document.getElementById('level-label').innerText = "LIVELLO 2"; }
+                if(gameState.level === 'livello3') { gameState.riseSpeed = 1.3; gameState.spawnRate = 2100; document.getElementById('level-label').innerText = "LIVELLO 3"; }
                 gameState.zenMode = false;
             }
             
             updateHudLayout(); 
             showScreen('game-interface'); document.getElementById('game-interface').style.display = 'block';
-            document.getElementById('pause-overlay').style.display = 'none'; document.getElementById('gameover-overlay').style.display = 'none'; 
+            document.getElementById('pause-overlay').style.display = 'none'; 
+            document.getElementById('gameover-overlay').style.display = 'none';
+            
             gameState.active = true; gameState.paused = false; gameState.score = 0; gameState.rockets = []; gameState.currentInput = ""; gameState.lastWords = [];
             document.querySelectorAll('.rocket-container').forEach(el => el.remove());
             document.getElementById('score').innerText = "0"; document.getElementById('input-display').innerText = "";
+            document.getElementById('input-display').style.borderColor = "var(--accent-color)";
             
-            var mobInput = document.getElementById('mobile-input');
-            mobInput.value = "";
-            mobInput.focus();
-
-            gameState.startTime = Date.now(); clearInterval(gameState.timerInterval); gameState.timerInterval = setInterval(updateTimerUI, 1000); updateTimerUI(); 
+            // TIMER COUNTDOWN DA 90 SECONDI
+            gameState.timeLeft = 90;
+            clearInterval(gameState.timerInterval); 
+            gameState.timerInterval = setInterval(updateTimerUI, 1000); 
+            updateTimerUI(); 
+            
             loop(); scheduleSpawn();
         }
         
@@ -428,7 +518,15 @@
             }
         }
 
-        function updateTimerUI() { if(!gameState.paused) document.getElementById('timer').innerText = Math.floor((Date.now() - gameState.startTime) / 1000); }
+        function updateTimerUI() { 
+            if(!gameState.paused) {
+                gameState.timeLeft--;
+                document.getElementById('timer').innerText = gameState.timeLeft;
+                if(gameState.timeLeft <= 0 && !gameState.zenMode) {
+                    gameOver(true); // Tempo scaduto = Vittoria
+                }
+            } 
+        }
         
         function togglePause() { 
             gameState.paused = !gameState.paused; 
@@ -439,8 +537,6 @@
                 document.getElementById('pause-stats').innerHTML = statsText;
                 clearTimeout(gameState.spawnTimer);
             } else { 
-                gameState.startTime = Date.now() - (parseInt(document.getElementById('timer').innerText)*1000); 
-                document.getElementById('mobile-input').focus(); 
                 loop(); scheduleSpawn(); 
             }
         }
@@ -468,7 +564,7 @@
             container.innerHTML = `<div class="rocket-icon">🚀</div><div class="rocket-text">${text}</div>`;
             
             var safe = false, posAttempts = 0, finalX = 0, startY = window.innerHeight + 50;
-            var maxWidth = window.innerWidth > 768 ? window.innerWidth - 300 : window.innerWidth - 180;
+            var maxWidth = window.innerWidth > 600 ? window.innerWidth - 300 : window.innerWidth - 180;
             if (maxWidth < 50) maxWidth = 50;
 
             while(!safe && posAttempts < 15) {
@@ -497,7 +593,8 @@
                         gameState.missed++;
                         document.getElementById('missed-count').innerText = gameState.missed;
                     } else {
-                        gameOver();
+                        document.getElementById('gameover-overlay').style.display = 'flex';
+                        gameOver(false); // Game Over per morte
                     }
                 }
             });
@@ -505,19 +602,24 @@
             if(gameState.active) requestAnimationFrame(loop);
         }
 
-        // FUNZIONE UNICA DI CONTROLLO INPUT (Per evitare doppi colpi)
-        function handleInput(char) {
+        document.addEventListener('keydown', (e) => {
             if(!gameState.active || gameState.paused) return;
-            var inputChar = char.toUpperCase();
-            var temp = gameState.currentInput + inputChar;
-            
-            if(gameState.rockets.some(r => r.text.startsWith(temp))) {
-                gameState.currentInput += inputChar;
-            } else { 
-                var d = document.getElementById('input-display'); 
-                d.style.borderColor = "var(--danger-color)"; 
-                setTimeout(()=>d.style.borderColor="var(--accent-color)", 200); 
-                gameState.currentInput = ""; 
+
+            if(e.key === 'Backspace') {
+                gameState.currentInput = gameState.currentInput.slice(0, -1);
+            }
+            else if(e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
+                var inputChar = e.key.toUpperCase();
+                var temp = gameState.currentInput + inputChar;
+                
+                if(gameState.rockets.some(r => r.text.startsWith(temp))) {
+                    gameState.currentInput += inputChar;
+                } else { 
+                    var d = document.getElementById('input-display'); 
+                    d.style.borderColor = "var(--danger-color)"; 
+                    setTimeout(()=>d.style.borderColor="var(--accent-color)", 200); 
+                    gameState.currentInput = ""; 
+                }
             }
             document.getElementById('input-display').innerText = gameState.currentInput;
             
@@ -528,43 +630,38 @@
                 setTimeout(() => hit.remove(), 300); 
                 gameState.rockets.splice(matchIdx, 1);
                 var pts = 10;
-                if(gameState.level === 'medie') pts = 20; if(gameState.level === 'superiori') pts = 30; if(gameState.customMode) pts = 5;
+                if(gameState.level === 'livello2') pts = 20; if(gameState.level === 'livello3') pts = 30; if(gameState.customMode) pts = 5;
                 gameState.score += pts;
                 gameState.currentInput = ""; 
                 document.getElementById('input-display').innerText = ""; 
                 document.getElementById('score').innerText = gameState.score;
             }
-        }
-
-        // TASTIERA PC: Gestisce SOLO Backspace. I caratteri passano dall'input nascosto.
-        document.addEventListener('keydown', (e) => {
-            if(!gameState.active || gameState.paused) return;
-            document.getElementById('mobile-input').focus();
-
-            if(e.key === 'Backspace') {
-                gameState.currentInput = gameState.currentInput.slice(0, -1);
-                document.getElementById('input-display').innerText = gameState.currentInput;
-            }
-        });
-
-        // INPUT EVENT: Gestisce caratteri sia da PC che da Mobile (SOLO QUI PER EVITARE DOPPI)
-        document.getElementById('mobile-input').addEventListener('input', (e) => {
-            if(!gameState.active || gameState.paused) return;
-            var val = e.target.value;
-            if(val.length > 0) {
-                var char = val.charAt(val.length - 1);
-                if(char.match(/[a-zA-Z]/)) {
-                    handleInput(char);
-                }
-                e.target.value = "";
-            } else {
-                // Fallback per Android Backspace
-                gameState.currentInput = gameState.currentInput.slice(0, -1);
-                document.getElementById('input-display').innerText = gameState.currentInput;
-            }
         });
         
-        function gameOver() { gameState.active = false; clearInterval(gameState.timerInterval); document.getElementById('final-score').innerText = gameState.score; document.getElementById('gameover-overlay').style.display = 'flex'; saveScore(); }
+        async function gameOver(victory) { 
+            gameState.active = false; 
+            clearInterval(gameState.timerInterval); 
+            
+            // Imposta testi
+            var title = document.getElementById('end-title');
+            var reason = document.getElementById('end-reason');
+            
+            if (victory) {
+                title.innerText = "MISSIONE COMPLETATA! 🏆";
+                title.style.color = "var(--gold)";
+                reason.innerText = "Tempo scaduto. Ottimo lavoro!";
+            } else {
+                title.innerText = "MISSIONE FALLITA! 💥";
+                title.style.color = "var(--danger-color)";
+                reason.innerText = "Un razzo è scappato!";
+            }
+            document.getElementById('final-score').innerText = gameState.score;
+            
+            await saveScore();
+            await fetchGameOverLeaderboard();
+            
+            document.getElementById('gameover-overlay').style.display = 'flex';
+        }
     </script>
 </body>
 </html>
