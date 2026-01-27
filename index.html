@@ -3,189 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Typing Rocket - AnthonyValley</title>
-    <meta name="description" content="Typing Rocket: Gioco educativo di dattilografia spaziale creato da AnthonyValley.">
-    <meta name="keywords" content="Typing Rocket, AnthonyValley, Dattilografia, Scuola, Gioco Educativo, Typing Game">
-    <meta name="author" content="AnthonyValley">
-    <meta name="robots" content="index, follow">
+    <meta name="description" content="Typing Rocket: Gioco educativo di dattilografia spaziale.">
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;700&display=swap');
-        
-        :root { 
-            --bg-color: #020617; 
-            --accent-color: #38bdf8; 
-            --danger-color: #fb7185; 
-            --text-color: #f8fafc; 
-            --gold: #fbbf24; 
-            --success: #22c55e;
-        }
-        
-        body { margin: 0; overflow: hidden; background-color: var(--bg-color); color: var(--text-color); font-family: 'Lexend', Verdana, sans-serif; user-select: none; 
-            background: linear-gradient(to bottom, #020617 0%, #0f172a 100%);
-        }
-        
-        /* Stelle */
-        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle infinite alternate; }
-        @keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.2); } }
-
-        /* BLOCCO MOBILE */
-        #mobile-warning {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #020617; z-index: 9999;
-            flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 20px; box-sizing: border-box;
-        }
-        
-        @media only screen and (max-width: 900px) {
-            #mobile-warning { display: flex !important; }
-            .screen, #game-interface, .stars { display: none !important; }
-        }
-
-        /* Schermate */
-        .screen { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            display: none; flex-direction: column; justify-content: center; align-items: center; 
-            background: rgba(2, 6, 23, 0.98); 
-            z-index: 10; 
-        }
-        #login-screen { display: flex; }
-        
-        /* Titoli e Animazioni */
-        .title-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px var(--accent-color); text-align: center; color: white; margin: 0; }
-        .title-rocket { font-size: 3.5rem; animation: floatRocket 3s ease-in-out infinite; display: inline-block; }
-        @keyframes floatRocket { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-15px) rotate(-45deg); } }
-        
-        /* Footer */
-        .footer-container { position: absolute; bottom: 20px; text-align: center; width: 100%; }
-        .footer-credit { font-size: 0.9rem; color: var(--accent-color); opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; font-weight: 300; }
-
-        /* Input UI */
-        .form-group { 
-            display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; 
-            margin-bottom: 40px; /* SPAZIO EXTRA SOTTO LA TENDINA */
-        }
-        
-        input[type="text"], input[type="password"] { 
-            padding: 15px 20px; font-size: 1.1rem; border-radius: 12px; 
-            border: 2px solid var(--accent-color); background: #0f172a; color: white; 
-            outline: none; width: 280px; text-align: center; transition: 0.3s; 
-        }
-        
-        /* MENU A TENDINA: GIALLO, TONDO E CENTRATO */
-        select { 
-            padding: 15px 40px; 
-            font-size: 1.1rem; 
-            border-radius: 50px; /* ARROTONDATO A PILLOLA */
-            border: 2px solid var(--accent-color); 
-            background: #0f172a; 
-            color: var(--gold); /* TESTO GIALLO */
-            outline: none; width: 320px; transition: 0.3s; 
-            text-transform: uppercase; 
-            font-weight: bold;
-            cursor: pointer;
-            
-            /* CENTRATURA PERFETTA */
-            text-align: center; 
-            text-align-last: center; 
-            -moz-text-align-last: center;
-            
-            /* RESET GRAFICA BROWSER */
-            appearance: none; -webkit-appearance: none; -moz-appearance: none;
-            
-            /* FRECCETTA CUSTOM */
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fbbf24'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-            background-repeat: no-repeat; background-position: right 20px center; background-size: 24px;
-        }
-        select option { background-color: #0f172a; color: var(--gold); text-align: center; padding: 10px; }
-        input:focus, select:focus { box-shadow: 0 0 20px var(--accent-color); border-color: white; }
-        
-        button { margin-top: 10px; padding: 15px 40px; font-size: 1.3rem; background: linear-gradient(45deg, #0ea5e9, #3b82f6); color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4); text-transform: uppercase; }
-        button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.6); }
-        .secondary-btn { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); box-shadow: none; font-size: 1rem; padding: 10px 20px; }
-        
-        /* TASTO MANUALE */
-        .tutorial-btn {
-            position: absolute; top: 30px; right: 30px;
-            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--accent-color);
-            color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;
-            cursor: pointer; transition: 0.3s; z-index: 20; text-transform: uppercase;
-            box-shadow: none; margin: 0;
-        }
-        .tutorial-btn:hover { background: var(--accent-color); color: #020617; }
-
-        /* IMPOSTAZIONI CUSTOM */
-        .custom-panel { 
-            background: #1e293b; padding: 25px; border-radius: 15px; border: 2px solid var(--accent-color); 
-            text-align: left; width: 320px; margin-top: 15px; display: none; 
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
-        }
-        .custom-row { margin-bottom: 20px; width: 100%; }
-        .custom-label { font-size: 0.85rem; color: var(--accent-color); margin-bottom: 8px; display: block; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
-        .checkbox-group { display: flex; gap: 20px; align-items: center; }
-        .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
-        input[type="checkbox"] { width: 22px; height: 22px; border-color: var(--accent-color); accent-color: var(--accent-color); cursor: pointer; }
-        
-        /* SLIDER */
-        input[type="range"] { 
-            -webkit-appearance: none; width: 100%; height: 8px; 
-            background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; margin: 10px 0; cursor: pointer;
-            background-image: linear-gradient(var(--accent-color), var(--accent-color)); background-repeat: no-repeat;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 24px; height: 24px; 
-            background: var(--accent-color); border-radius: 50%; 
-            box-shadow: 0 0 15px var(--accent-color); cursor: pointer; border: 2px solid white;
-        }
-
-        /* Tabs e Classifiche */
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { padding: 8px 15px; font-size: 0.9rem; border: 1px solid var(--accent-color); border-radius: 20px; background: rgba(0,0,0,0.3); color: var(--text-color); cursor: pointer; box-shadow: none; text-transform: uppercase; }
-        .tab-btn.active { background: var(--accent-color); color: #020617; font-weight: bold; }
-        #history-list { list-style: none; padding: 0; width: 90%; max-width: 500px; max-height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; }
-        #history-list li { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 1.1rem; }
-
-        /* LISTA CLASSIFICA DENTRO GAME OVER */
-        #gameover-leaderboard {
-            list-style: none; padding: 0; width: 100%; max-height: 200px; overflow-y: auto;
-            background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        #gameover-leaderboard li {
-            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; font-size: 1rem;
-        }
-
-        /* Gioco e HUD */
-        #game-interface { display: none; width: 100%; height: 100vh; position: relative; }
-        #hud-top { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 5; font-size: 1.3rem; font-weight: bold; text-shadow: 0 0 5px black; }
-        .hud-item { background: rgba(15, 23, 42, 0.9); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--accent-color); display: flex; gap: 10px; color: white; text-transform: uppercase; }
-        
-        #input-display { 
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); 
-            font-size: 2.5rem; padding: 10px 50px; border-radius: 15px; 
-            background: rgba(15, 23, 42, 0.9); border: 2px solid var(--accent-color); 
-            min-width: 300px; text-align: center; box-shadow: 0 0 20px var(--accent-color); 
-            color: white; height: 60px; line-height: 60px; text-transform: uppercase; pointer-events: none;
-        }
-        
-        /* Razzo */
-        .rocket-container { position: absolute; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 0 15px var(--accent-color)); width: 200px; text-align: center; }
-        .rocket-icon { font-size: 60px; transform: rotate(-45deg); z-index: 1; margin-bottom: 15px; }
-        .rocket-text { padding: 10px 15px; background: #0f172a; border: 3px solid var(--accent-color); border-radius: 10px; font-size: 1.5rem; font-weight: bold; color: white; z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.5); letter-spacing: 2px; white-space: nowrap; }
-
-        /* Popups */
-        .overlay-popup { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
-        .popup-content { background: #1e293b; padding: 40px; border-radius: 20px; border: 2px solid var(--accent-color); text-align: center; box-shadow: 0 0 50px rgba(56, 189, 248, 0.2); max-width: 500px; width: 90%; }
-        .tutorial-text p { font-size: 1.1rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 15px; }
-        .tutorial-level { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
-    </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -193,9 +18,8 @@
         <div style="font-size: 4rem; margin-bottom: 20px;">⛔</div>
         <h1 style="font-size: 2rem; color: var(--danger-color); margin-bottom: 20px;">ATTENZIONE PILOTA!</h1>
         <p style="font-size: 1.2rem; color: white; line-height: 1.6; max-width: 80%;">
-            Questo sito non è ottimizzato per smartphone.<br><br>
-            Il gioco richiede una <b>TASTIERA FISICA</b>.<br>
-            Accedi da <b>PC o Tablet con tastiera</b> per iniziare la missione.
+            Questo sito richiede una <b>TASTIERA FISICA</b>.<br>
+            Accedi da <b>PC o Tablet con tastiera</b>.
         </p>
     </div>
 
@@ -215,8 +39,8 @@
             <div class="tutorial-text" style="text-align: left;">
                 <p><span class="tutorial-level">LIVELLO 1:</span><br>Lettere singole e parole brevi. Ideale per imparare la tastiera.</p>
                 <p><span class="tutorial-level">LIVELLO 2:</span><br>Parole di media lunghezza. La velocità aumenta leggermente. Perfetto per allenarsi.</p>
-                <p><span class="tutorial-level">LIVELLO 3:</span><br>Parole lunghe e termini specifici. Velocità moderata per permettere la scrittura. Per veri piloti!</p>
-                <p><span class="tutorial-level">🛠️ PERSONALIZZATO:</span><br>Configura la tua missione! Scegli se usare solo lettere, parole, la velocità dei razzi e se attivare la modalità ZEN (senza Game Over).</p>
+                <p><span class="tutorial-level">LIVELLO 3:</span><br>Parole lunghe e termini specifici. Velocità moderata. Per veri piloti!</p>
+                <p><span class="tutorial-level">🛠️ PERSONALIZZATO:</span><br>Configura la tua missione! Scegli contenuto, velocità e modalità ZEN.</p>
                 <p style="text-align:center; color:var(--success); font-weight:bold; margin-top:20px;">DURATA PARTITA: 90 SECONDI</p>
             </div>
             <button onclick="closeTutorial()">HO CAPITO</button>
@@ -227,8 +51,13 @@
         <div class="title-container"><h1>Typing Rocket</h1><div class="title-rocket">🚀</div></div>
         <div class="form-group">
             <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
+            
+            <div class="password-wrapper">
+                <input type="password" id="password" placeholder="Password">
+                <span class="password-toggle" onclick="togglePassword()">👁️</span>
+            </div>
         </div>
+        
         <button onclick="doLogin()">ACCENDI I MOTORI</button>
         <p id="login-msg" style="font-size: 0.9rem; color: var(--gold); margin-top:15px;"></p>
         <div class="footer-container"><div class="footer-credit">Creation by AnthonyValley</div></div>
@@ -239,13 +68,27 @@
         
         <h1>BENVENUTO PILOTA <span id="display-user" style="color:var(--accent-color)"></span></h1>
         <p style="margin-bottom: 20px; font-size: 1.2rem; text-transform:uppercase;">Scegli la tua missione:</p>
+        
         <div class="form-group">
-            <select id="difficulty-select" onchange="checkCustomMode()">
+            <select id="difficulty-select" onchange="checkCustomMode()" style="display:none">
                 <option value="livello1">LIVELLO 1</option>
                 <option value="livello2">LIVELLO 2</option>
                 <option value="livello3">LIVELLO 3</option>
-                <option value="custom" style="font-weight:bold; color:var(--gold);">🛠️ PERSONALIZZATO</option>
+                <option value="custom">🛠️ PERSONALIZZATO</option>
             </select>
+
+            <div class="custom-select-wrapper">
+                <div class="custom-select-trigger" onclick="toggleCustomSelect()">
+                    <span id="custom-select-text">LIVELLO 1</span>
+                    <div class="arrow">▼</div>
+                </div>
+                <div class="custom-options">
+                    <div class="custom-option selected" onclick="selectOption('livello1', 'LIVELLO 1')">LIVELLO 1</div>
+                    <div class="custom-option" onclick="selectOption('livello2', 'LIVELLO 2')">LIVELLO 2</div>
+                    <div class="custom-option" onclick="selectOption('livello3', 'LIVELLO 3')">LIVELLO 3</div>
+                    <div class="custom-option special" onclick="selectOption('custom', '🛠️ PERSONALIZZATO')">🛠️ PERSONALIZZATO</div>
+                </div>
+            </div>
         </div>
 
         <div id="custom-panel" class="custom-panel">
@@ -263,7 +106,7 @@
             </div>
             <div class="custom-row">
                 <label class="custom-label">MODALITÀ:</label>
-                <select id="cust-mode" style="width:100%; padding:8px; font-size:0.9rem;">
+                <select id="cust-mode" style="width:100%; padding:8px; font-size:0.9rem; border-radius:10px; background:#0f172a; color:white; border:1px solid var(--accent-color);">
                     <option value="classic">CLASSICA (FATALE)</option>
                     <option value="zen">ZEN (INFINITO)</option>
                 </select>
@@ -324,344 +167,6 @@
         </div>
     </div>
 
-    <script>
-        function createStars() {
-            const container = document.getElementById('stars-container');
-            for(let i=0; i<150; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                const size = Math.random() * 3; 
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.animationDuration = (Math.random() * 3 + 1) + 's';
-                star.style.animationDelay = Math.random() + 's';
-                container.appendChild(star);
-            }
-        }
-        createStars();
-
-        var SUPABASE_URL = 'https://ukmwguhqvjfomwbevdaa.supabase.co'; 
-        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrbXdndWhxdmpmb213YmV2ZGFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3NTA4MjcsImV4cCI6MjA4NDMyNjgyN30.6suoez0xLoAJ_VjNdz63xVMikH9n7lUvSx0BvQWFM68'; 
-        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const alfabeto = ["A","B","C","D","E","F","G","H","I","L","M","N","O","P","Q","R","S","T","U","V","Z"];
-        const elem_words = ["CASA","SOLE","LUNA","MARE","PANE","ERBA","LUCE","PERA","MELA","FIORE","GATTO","CANE","LUPO","ORSO","RANA","VITA","AUTO","BICI","NUBI","CIELO","ORO","BLU","ROSA","VIOLA","NERO","ALTO","PURO","RISO","OLIO","SALE","PEPE","UVA"];
-        const med_words = ["SCUOLA","AMICO","TEMPO","GIOCO","STUDIO","LIBRO","PENNA","BANCO","PRATO","FIUME","MONTE","CARTA","MATITA","COLORE","ALBERO","FOGLIA","RADICE","STORIA","CALCIO","SPORT","NUOTO","PIANO","FORTE","DOLCE","AMARO","ESTATE","INVERNO","AUTUNNO","STRADA","PIAZZA","NONNO","PADRE","MADRE","CUGINO","SORELLA","REGINA","CASTELLO"];
-        const sup_words = ["INFORMATICA","LETTERATURA","MATEMATICA","GEOGRAFIA","FILOSOFIA","TECNOLOGIA","PROGRAMMA","SISTEMA","INTERNET","CONNESSIONE","ALGORITMO","VARIABILE","FUNZIONE","DATABASE","SICUREZZA","SVILUPPO","PROGETTO","RELAZIONE","DOCUMENTO","SCRITTURA","TASTIERA","SCHERMO","MEMORIA","DIGITALE","VIRTUALE","SOCIALE","UNIVERSO","GALASSIA","ELETTRICITA","MAGNETISMO","GRAVITA","BIOLOGIA","CHIMICA","MOLECOLA","CELLULA","ENERGIA","AMBIENTE","FUTURO"];
-
-        var dbContenuti = { 
-            livello1: [...alfabeto, ...elem_words], 
-            livello2: [...alfabeto, ...med_words], 
-            livello3: [...alfabeto, ...sup_words] 
-        };
-
-        var currentUser = null;
-        var gameState = { active: false, paused: false, score: 0, missed: 0, level: 'livello1', rockets: [], spawnRate: 2000, riseSpeed: 1, currentInput: "", spawnTimer: null, timeLeft: 90, timerInterval: null, lastWords: [], customWords: [], customMode: false, zenMode: false };
-
-        function showAlert(title, msg) { document.getElementById('alert-title').innerText = title; document.getElementById('alert-msg').innerText = msg; document.getElementById('alert-overlay').style.display = 'flex'; }
-        function closeAlert() { document.getElementById('alert-overlay').style.display = 'none'; }
-        function openTutorial() { document.getElementById('tutorial-overlay').style.display = 'flex'; }
-        function closeTutorial() { document.getElementById('tutorial-overlay').style.display = 'none'; }
-
-        async function doLogin() {
-            var u = document.getElementById('username').value.trim();
-            var p = document.getElementById('password').value.trim();
-            var msg = document.getElementById('login-msg');
-            if(!u || !p) { showAlert("ERRORE", "Inserisci Username e Password"); return; }
-            msg.innerText = "Connessione...";
-            var { data: users, error } = await supabase.from('utenti').select('*').eq('username', u);
-            if (error) { showAlert("ERRORE DI RETE", "Controlla la connessione"); msg.innerText = ""; return; }
-            if (users.length > 0) {
-                if (users[0].password === p) proceedToMenu(u);
-                else { msg.innerText = ""; showAlert("ACCESSO NEGATO", "Password errata."); }
-            } else {
-                var { error: insertError } = await supabase.from('utenti').insert([{ username: u, password: p }]);
-                if(!insertError) proceedToMenu(u);
-                else { msg.innerText = ""; showAlert("ERRORE", "Impossibile creare utente."); }
-            }
-        }
-        function proceedToMenu(u) { 
-            currentUser = u; 
-            document.getElementById('display-user').innerText = u; 
-            document.getElementById('login-msg').innerText = ""; 
-            updateSliderFill(document.getElementById('cust-speed'));
-            showScreen('menu-screen'); 
-        }
-
-        function updateSliderFill(el) {
-            var val = (el.value - el.min) / (el.max - el.min) * 100;
-            el.style.backgroundSize = val + '% 100%';
-            document.getElementById('speed-val').innerText = el.value;
-        }
-
-        async function saveScore() { 
-            if(!currentUser || gameState.score === 0 || gameState.customMode) return; 
-            await supabase.from('partite').insert([{ username: currentUser, score: gameState.score, livello: gameState.level }]); 
-        }
-
-        function showHistory(fromGame=false) { 
-            showScreen('history-screen');
-            if(fromGame) {
-                document.getElementById('history-subtitle').innerText = "PARTITA TERMINATA - PUNTI: " + gameState.score;
-            } else {
-                document.getElementById('history-subtitle').innerText = "";
-            }
-            var cat = (fromGame && !gameState.customMode) ? gameState.level : 'livello1';
-            fetchLeaderboard(cat); 
-        }
-
-        async function fetchLeaderboard(category) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            if(category==='livello1') document.getElementById('btn-elem').classList.add('active');
-            if(category==='livello2') document.getElementById('btn-med').classList.add('active');
-            if(category==='livello3') document.getElementById('btn-sup').classList.add('active');
-            var list = document.getElementById('history-list'); list.innerHTML = "Caricamento...";
-            var { data: scores } = await supabase.from('partite').select('*').eq('livello', category).order('score', { ascending: false }).limit(10);
-            list.innerHTML = "";
-            if (!scores || scores.length === 0) list.innerHTML = "<li>Nessun record.</li>";
-            else scores.forEach((row, i) => { 
-                // LOGICA HOME: Top 10 con Medaglie 1-3, Numeri 4-10
-                var rank = (i===0) ? '🥇' : (i===1) ? '🥈' : (i===2) ? '🥉' : (i+1) + '°';
-                var li = document.createElement('li'); 
-                li.innerHTML = `<span>${rank} <b>${row.username}</b></span> <span style="color:var(--gold);">${row.score}</span>`; 
-                list.appendChild(li); 
-            });
-        }
-
-        // FUNZIONE SPECIFICA PER GAME OVER: SOLO TOP 3
-        async function fetchGameOverLeaderboard() {
-            var list = document.getElementById('gameover-leaderboard');
-            list.innerHTML = "<li>Caricamento...</li>";
-            
-            if(gameState.customMode) {
-                list.innerHTML = "<li>Classifica non disponibile in modalità personalizzata</li>";
-                return;
-            }
-
-            var { data: scores } = await supabase.from('partite').select('*').eq('livello', gameState.level).order('score', { ascending: false }).limit(3); // SOLO 3
-            list.innerHTML = "";
-            if (!scores || scores.length === 0) list.innerHTML = "<li>Nessun record.</li>";
-            else scores.forEach((row, i) => { 
-                var isMe = row.username === currentUser && row.score === gameState.score ? "color:var(--accent-color)" : "";
-                var rank = (i===0) ? '🥇' : (i===1) ? '🥈' : '🥉'; // SEMPRE MEDAGLIE (sono solo 3)
-                var li = document.createElement('li'); 
-                li.innerHTML = `<span style="${isMe}">${rank} <b>${row.username}</b></span> <span style="color:var(--gold);">${row.score}</span>`; 
-                list.appendChild(li); 
-            });
-        }
-
-        function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-interface').style.display = 'none'; document.getElementById('alert-overlay').style.display = 'none'; document.getElementById('tutorial-overlay').style.display = 'none'; document.getElementById(id).style.display = 'flex'; }
-        function logout() { currentUser = null; document.getElementById('username').value=""; document.getElementById('password').value=""; showScreen('login-screen'); }
-        function backToMenu() { showScreen('menu-screen'); }
-
-        function checkCustomMode() {
-            var val = document.getElementById('difficulty-select').value;
-            if(val === 'custom') document.getElementById('custom-panel').style.display = 'block';
-            else document.getElementById('custom-panel').style.display = 'none';
-        }
-
-        function startGame() {
-            gameState.level = document.getElementById('difficulty-select').value;
-            gameState.customMode = (gameState.level === 'custom');
-            gameState.missed = 0; 
-            
-            if(gameState.customMode) {
-                var useLetters = document.getElementById('cust-letters').checked;
-                var useWords = document.getElementById('cust-words').checked;
-                var speedVal = parseInt(document.getElementById('cust-speed').value);
-                var mode = document.getElementById('cust-mode').value;
-                if(!useLetters && !useWords) { showAlert("ERRORE", "Seleziona almeno lettere o parole!"); return; }
-
-                gameState.customWords = [];
-                if(useLetters) gameState.customWords = [...gameState.customWords, ...alfabeto];
-                if(useWords) gameState.customWords = [...gameState.customWords, ...elem_words, ...med_words, ...sup_words]; 
-
-                gameState.riseSpeed = 0.5 + (speedVal * 0.2); 
-                gameState.spawnRate = 3500 - (speedVal * 250); 
-                if(gameState.spawnRate < 800) gameState.spawnRate = 800; 
-                document.getElementById('level-label').innerText = "CUSTOM";
-                gameState.zenMode = (mode === 'zen');
-            } else {
-                if(gameState.level === 'livello1') { gameState.riseSpeed = 0.7; gameState.spawnRate = 2800; document.getElementById('level-label').innerText = "LIVELLO 1"; }
-                if(gameState.level === 'livello2') { gameState.riseSpeed = 1.1; gameState.spawnRate = 2300; document.getElementById('level-label').innerText = "LIVELLO 2"; }
-                if(gameState.level === 'livello3') { gameState.riseSpeed = 1.3; gameState.spawnRate = 2100; document.getElementById('level-label').innerText = "LIVELLO 3"; }
-                gameState.zenMode = false;
-            }
-            
-            updateHudLayout(); 
-            showScreen('game-interface'); document.getElementById('game-interface').style.display = 'block';
-            document.getElementById('pause-overlay').style.display = 'none'; 
-            document.getElementById('gameover-overlay').style.display = 'none';
-            
-            gameState.active = true; gameState.paused = false; gameState.score = 0; gameState.rockets = []; gameState.currentInput = ""; gameState.lastWords = [];
-            document.querySelectorAll('.rocket-container').forEach(el => el.remove());
-            document.getElementById('score').innerText = "0"; document.getElementById('input-display').innerText = "";
-            document.getElementById('input-display').style.borderColor = "var(--accent-color)";
-            
-            // TIMER COUNTDOWN DA 90 SECONDI
-            gameState.timeLeft = 90;
-            clearInterval(gameState.timerInterval); 
-            gameState.timerInterval = setInterval(updateTimerUI, 1000); 
-            updateTimerUI(); 
-            
-            loop(); scheduleSpawn();
-        }
-        
-        function updateHudLayout() {
-            var scoreContainer = document.getElementById('score-container');
-            if (gameState.zenMode) {
-                scoreContainer.innerHTML = `PUNTI: <span id="score" style="color:var(--gold)">0</span> | <span style="color:var(--danger-color)">PERSI: <span id="missed-count">0</span></span>`;
-            } else {
-                scoreContainer.innerHTML = `PUNTI: <span id="score" style="color:var(--gold)">0</span>`;
-            }
-        }
-
-        function updateTimerUI() { 
-            if(!gameState.paused) {
-                gameState.timeLeft--;
-                document.getElementById('timer').innerText = gameState.timeLeft;
-                if(gameState.timeLeft <= 0 && !gameState.zenMode) {
-                    gameOver(true); // Tempo scaduto = Vittoria
-                }
-            } 
-        }
-        
-        function togglePause() { 
-            gameState.paused = !gameState.paused; 
-            document.getElementById('pause-overlay').style.display = gameState.paused ? 'flex' : 'none'; 
-            if(gameState.paused) {
-                var statsText = `PUNTI: <b style="color:var(--gold)">${gameState.score}</b>`;
-                if(gameState.zenMode) statsText += `<br>PERSI: <b style="color:var(--danger-color)">${gameState.missed}</b>`;
-                document.getElementById('pause-stats').innerHTML = statsText;
-                clearTimeout(gameState.spawnTimer);
-            } else { 
-                loop(); scheduleSpawn(); 
-            }
-        }
-        
-        function quitGame() { gameState.active = false; clearInterval(gameState.timerInterval); saveScore(); backToMenu(); }
-
-        function scheduleSpawn() { if(gameState.active && !gameState.paused) gameState.spawnTimer = setTimeout(() => { spawnRocket(); scheduleSpawn(); }, gameState.spawnRate); }
-
-        function spawnRocket() {
-            if(gameState.paused) return;
-            var contentList = gameState.customMode ? gameState.customWords : dbContenuti[gameState.level];
-            
-            var text;
-            var attempts = 0;
-            do {
-                text = contentList[Math.floor(Math.random() * contentList.length)];
-                attempts++;
-            } while (gameState.lastWords.includes(text) && attempts < 10);
-            gameState.lastWords.push(text); if(gameState.lastWords.length > 5) gameState.lastWords.shift();
-
-            text = text.toUpperCase();
-
-            var container = document.createElement('div');
-            container.className = 'rocket-container';
-            container.innerHTML = `<div class="rocket-icon">🚀</div><div class="rocket-text">${text}</div>`;
-            
-            var safe = false, posAttempts = 0, finalX = 0, startY = window.innerHeight + 50;
-            var maxWidth = window.innerWidth > 600 ? window.innerWidth - 300 : window.innerWidth - 180;
-            if (maxWidth < 50) maxWidth = 50;
-
-            while(!safe && posAttempts < 15) {
-                finalX = Math.floor(Math.random() * maxWidth) + 25; 
-                safe = true;
-                for(var r of gameState.rockets) {
-                    if (r.y > window.innerHeight - 300) { if (Math.abs(r.x - finalX) < 160) { safe = false; break; } }
-                }
-                posAttempts++;
-            }
-            if(!safe) return; 
-
-            container.style.left = finalX + "px"; container.style.top = startY + "px";
-            document.getElementById('game-interface').appendChild(container);
-            gameState.rockets.push({ element: container, text: text, y: startY, x: finalX });
-        }
-
-        function loop() {
-            if(!gameState.active || gameState.paused) return;
-            gameState.rockets.forEach((r) => {
-                r.y -= gameState.riseSpeed; 
-                r.element.style.top = r.y + "px";
-                if(r.y < -150) {
-                    if (gameState.zenMode) {
-                        r.element.remove(); r.y = -9999; 
-                        gameState.missed++;
-                        document.getElementById('missed-count').innerText = gameState.missed;
-                    } else {
-                        document.getElementById('gameover-overlay').style.display = 'flex';
-                        gameOver(false); // Game Over per morte
-                    }
-                }
-            });
-            gameState.rockets = gameState.rockets.filter(r => r.y > -200);
-            if(gameState.active) requestAnimationFrame(loop);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if(!gameState.active || gameState.paused) return;
-
-            if(e.key === 'Backspace') {
-                gameState.currentInput = gameState.currentInput.slice(0, -1);
-            }
-            else if(e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
-                var inputChar = e.key.toUpperCase();
-                var temp = gameState.currentInput + inputChar;
-                
-                if(gameState.rockets.some(r => r.text.startsWith(temp))) {
-                    gameState.currentInput += inputChar;
-                } else { 
-                    var d = document.getElementById('input-display'); 
-                    d.style.borderColor = "var(--danger-color)"; 
-                    setTimeout(()=>d.style.borderColor="var(--accent-color)", 200); 
-                    gameState.currentInput = ""; 
-                }
-            }
-            document.getElementById('input-display').innerText = gameState.currentInput;
-            
-            var matchIdx = gameState.rockets.findIndex(r => r.text === gameState.currentInput);
-            if(matchIdx !== -1) {
-                var hit = gameState.rockets[matchIdx].element;
-                hit.style.transform = "scale(1.5) rotate(360deg)"; hit.style.opacity = "0";
-                setTimeout(() => hit.remove(), 300); 
-                gameState.rockets.splice(matchIdx, 1);
-                var pts = 10;
-                if(gameState.level === 'livello2') pts = 20; if(gameState.level === 'livello3') pts = 30; if(gameState.customMode) pts = 5;
-                gameState.score += pts;
-                gameState.currentInput = ""; 
-                document.getElementById('input-display').innerText = ""; 
-                document.getElementById('score').innerText = gameState.score;
-            }
-        });
-        
-        async function gameOver(victory) { 
-            gameState.active = false; 
-            clearInterval(gameState.timerInterval); 
-            
-            // Imposta testi
-            var title = document.getElementById('end-title');
-            var reason = document.getElementById('end-reason');
-            
-            if (victory) {
-                title.innerText = "MISSIONE COMPLETATA! 🏆";
-                title.style.color = "var(--gold)";
-                reason.innerText = "Tempo scaduto. Ottimo lavoro!";
-            } else {
-                title.innerText = "MISSIONE FALLITA! 💥";
-                title.style.color = "var(--danger-color)";
-                reason.innerText = "Un razzo è scappato!";
-            }
-            document.getElementById('final-score').innerText = gameState.score;
-            
-            await saveScore();
-            await fetchGameOverLeaderboard();
-            
-            document.getElementById('gameover-overlay').style.display = 'flex';
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

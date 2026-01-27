@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;700&display=swap');
+
+:root { 
+    --bg-color: #020617; 
+    --accent-color: #38bdf8; 
+    --danger-color: #fb7185; 
+    --text-color: #f8fafc; 
+    --gold: #fbbf24; 
+    --success: #22c55e;
+}
+
+body { 
+    margin: 0; 
+    /* MODIFICA 1: ABILITATO SCROLL VERTICALE SE NECESSARIO */
+    overflow-y: auto; 
+    overflow-x: hidden; 
+    background-color: var(--bg-color); 
+    color: var(--text-color); 
+    font-family: 'Lexend', Verdana, sans-serif; 
+    user-select: none; 
+    background: linear-gradient(to bottom, #020617 0%, #0f172a 100%);
+}
+
+/* Stelle */
+.stars { 
+    /* MODIFICA 2: STELLE FISSE (non scorrono via) */
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%; 
+    pointer-events: none; z-index: 0; 
+}
+.star { position: absolute; background: white; border-radius: 50%; animation: twinkle infinite alternate; }
+@keyframes twinkle { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.2); } }
+
+/* BLOCCO MOBILE */
+#mobile-warning {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #020617; z-index: 9999;
+    flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 20px; box-sizing: border-box;
+}
+
+@media only screen and (max-width: 900px) {
+    #mobile-warning { display: flex !important; }
+    .screen, #game-interface, .stars { display: none !important; }
+}
+
+/* Schermate */
+.screen { 
+    /* MODIFICA 3: ADATTAMENTO ALTEZZA PER LO SCROLL */
+    position: absolute; 
+    top: 0; left: 0; 
+    width: 100%; 
+    min-height: 100vh; /* Occupa almeno tutto lo schermo */
+    height: auto;      /* Ma si allunga se serve */
+    padding: 40px 0;   /* Spazio extra sopra e sotto */
+    
+    display: none; flex-direction: column; justify-content: center; align-items: center; 
+    /* Sfondo semitrasparente per leggere sopra le stelle */
+    background: rgba(2, 6, 23, 0.8); 
+    z-index: 10; 
+}
+#login-screen { display: flex; }
+
+/* Titoli e Animazioni */
+.title-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px var(--accent-color); text-align: center; color: white; margin: 0; }
+.title-rocket { font-size: 3.5rem; animation: floatRocket 3s ease-in-out infinite; display: inline-block; }
+@keyframes floatRocket { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-15px) rotate(-45deg); } }
+
+/* Footer */
+.footer-container { 
+    /* MODIFICA 4: Footer non più assoluto, così scende col contenuto */
+    margin-top: 40px; 
+    text-align: center; width: 100%; 
+}
+.footer-credit { font-size: 0.9rem; color: var(--accent-color); opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; font-weight: 300; }
+
+/* Input UI */
+.form-group { 
+    display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; 
+    margin-bottom: 20px;
+}
+
+input[type="text"], input[type="password"] { 
+    padding: 15px 20px; font-size: 1.1rem; border-radius: 12px; 
+    border: 2px solid var(--accent-color); background: #0f172a; color: white; 
+    outline: none; width: 280px; text-align: center; transition: 0.3s; 
+}
+
+/* --- STILE OCCHIO PASSWORD --- */
+.password-wrapper {
+    position: relative;
+    width: 324px;
+    display: flex; justify-content: center;
+}
+.password-toggle {
+    position: absolute;
+    right: 15px; 
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    z-index: 5;
+    background: none; border: none; padding: 0;
+}
+.password-toggle:hover { color: white; }
+
+/* --- MENU A TENDINA PERSONALIZZATO --- */
+.custom-select-wrapper {
+    position: relative;
+    width: 320px;
+    user-select: none;
+    margin-bottom: 10px;
+    font-weight: bold;
+    z-index: 20; 
+}
+
+.custom-select-trigger {
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    background: #0f172a;
+    color: var(--gold); 
+    border: 2px solid var(--accent-color);
+    border-radius: 50px; 
+    cursor: pointer;
+    display: flex; justify-content: center; align-items: center;
+    gap: 10px; transition: 0.3s; text-transform: uppercase;
+}
+
+.custom-select-trigger:hover { box-shadow: 0 0 20px var(--accent-color); border-color: white; }
+.arrow { font-size: 0.8rem; color: var(--gold); margin-left: 10px; transition: 0.3s; }
+
+.custom-options {
+    position: absolute;
+    top: 110%; left: 0; right: 0;
+    background: #0f172a;
+    border: 2px solid var(--accent-color);
+    border-radius: 15px;
+    z-index: 100;
+    opacity: 0; visibility: hidden;
+    transform: translateY(-10px);
+    transition: 0.3s; overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+.custom-select-wrapper.open .custom-options { opacity: 1; visibility: visible; transform: translateY(0); }
+.custom-select-wrapper.open .arrow { transform: rotate(180deg); }
+
+.custom-option {
+    padding: 15px; text-align: center; color: white; cursor: pointer;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.2); transition: 0.2s; text-transform: uppercase;
+}
+.custom-option:last-child { border-bottom: none; }
+.custom-option:hover { background: var(--accent-color); color: #020617; font-weight: bold; }
+.custom-option.selected { background: rgba(56, 189, 248, 0.2); color: var(--gold); }
+.custom-option.special { color: var(--gold); }
+
+button { margin-top: 10px; padding: 15px 40px; font-size: 1.3rem; background: linear-gradient(45deg, #0ea5e9, #3b82f6); color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 5px 20px rgba(14, 165, 233, 0.4); text-transform: uppercase; }
+button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 25px rgba(14, 165, 233, 0.6); }
+.secondary-btn { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); box-shadow: none; font-size: 1rem; padding: 10px 20px; }
+
+/* TASTO MANUALE */
+.tutorial-btn {
+    position: absolute; top: 30px; right: 30px;
+    background: rgba(255, 255, 255, 0.1); border: 1px solid var(--accent-color);
+    color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.9rem;
+    cursor: pointer; transition: 0.3s; z-index: 20; text-transform: uppercase;
+    box-shadow: none; margin: 0;
+}
+.tutorial-btn:hover { background: var(--accent-color); color: #020617; }
+
+/* IMPOSTAZIONI CUSTOM */
+.custom-panel { 
+    background: #1e293b; padding: 25px; border-radius: 15px; border: 2px solid var(--accent-color); 
+    text-align: left; width: 320px; margin-top: 15px; display: none; 
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+}
+.custom-row { margin-bottom: 20px; width: 100%; }
+.custom-label { font-size: 0.85rem; color: var(--accent-color); margin-bottom: 8px; display: block; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+.checkbox-group { display: flex; gap: 20px; align-items: center; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
+input[type="checkbox"] { width: 22px; height: 22px; border-color: var(--accent-color); accent-color: var(--accent-color); cursor: pointer; }
+
+/* SLIDER */
+input[type="range"] { 
+    -webkit-appearance: none; width: 100%; height: 8px; 
+    background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; margin: 10px 0; cursor: pointer;
+    background-image: linear-gradient(var(--accent-color), var(--accent-color)); background-repeat: no-repeat;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 24px; height: 24px; 
+    background: var(--accent-color); border-radius: 50%; 
+    box-shadow: 0 0 15px var(--accent-color); cursor: pointer; border: 2px solid white;
+}
+
+/* Tabs e Classifiche */
+.tabs-container { display: flex; gap: 10px; margin-bottom: 15px; }
+.tab-btn { padding: 8px 15px; font-size: 0.9rem; border: 1px solid var(--accent-color); border-radius: 20px; background: rgba(0,0,0,0.3); color: var(--text-color); cursor: pointer; box-shadow: none; text-transform: uppercase; }
+.tab-btn.active { background: var(--accent-color); color: #020617; font-weight: bold; }
+#history-list { list-style: none; padding: 0; width: 90%; max-width: 500px; max-height: 400px; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 10px; }
+#history-list li { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; font-size: 1.1rem; }
+
+/* LISTA CLASSIFICA DENTRO GAME OVER */
+#gameover-leaderboard {
+    list-style: none; padding: 0; width: 100%; max-height: 200px; overflow-y: auto;
+    background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+#gameover-leaderboard li {
+    padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; font-size: 1rem;
+}
+
+/* Gioco e HUD */
+#game-interface { display: none; width: 100%; height: 100vh; position: relative; }
+#hud-top { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 5; font-size: 1.3rem; font-weight: bold; text-shadow: 0 0 5px black; }
+.hud-item { background: rgba(15, 23, 42, 0.9); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--accent-color); display: flex; gap: 10px; color: white; text-transform: uppercase; }
+
+#input-display { 
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); 
+    font-size: 2.5rem; padding: 10px 50px; border-radius: 15px; 
+    background: rgba(15, 23, 42, 0.9); border: 2px solid var(--accent-color); 
+    min-width: 300px; text-align: center; box-shadow: 0 0 20px var(--accent-color); 
+    color: white; height: 60px; line-height: 60px; text-transform: uppercase; pointer-events: none;
+}
+
+/* Razzo */
+.rocket-container { position: absolute; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 0 15px var(--accent-color)); width: 200px; text-align: center; }
+.rocket-icon { font-size: 60px; transform: rotate(-45deg); z-index: 1; margin-bottom: 15px; }
+.rocket-text { padding: 10px 15px; background: #0f172a; border: 3px solid var(--accent-color); border-radius: 10px; font-size: 1.5rem; font-weight: bold; color: white; z-index: 2; box-shadow: 0 5px 15px rgba(0,0,0,0.5); letter-spacing: 2px; white-space: nowrap; }
+
+/* POPUP FIXED */
+.overlay-popup { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(2, 6, 23, 0.95); 
+    display: none; 
+    flex-direction: column; justify-content: center; align-items: center; 
+    z-index: 999; 
+}
+
+.popup-content { 
+    background: #1e293b; padding: 40px; border-radius: 20px; border: 2px solid var(--accent-color); text-align: center; box-shadow: 0 0 50px rgba(56, 189, 248, 0.2); max-width: 500px; width: 90%;
+    
+    /* SCROLLBAR SE IL POPUP E' TROPPO ALTO */
+    max-height: 85vh; 
+    overflow-y: auto; 
+    overflow-x: hidden; 
+}
+
+/* Stile scrollbar */
+.popup-content::-webkit-scrollbar { width: 8px; }
+.popup-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+.popup-content::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
+
+.tutorial-text p { font-size: 1.1rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 15px; }
+.tutorial-level { color: var(--gold); font-weight: bold; font-size: 1.2rem; }
