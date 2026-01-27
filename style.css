@@ -9,9 +9,9 @@
     --success: #22c55e;
 }
 
-/* SETUP BASE PERFETTO PER CENTRATURA */
+/* SETUP BASE */
 html, body {
-    height: 100%; /* Fondamentale per il vertical align */
+    height: 100%; 
     margin: 0;
     padding: 0;
 }
@@ -47,21 +47,20 @@ body {
     .screen, #game-interface, .stars { display: none !important; }
 }
 
-/* --- SCHERMATE (CENTRATURA PERFETTA) --- */
+/* --- SCHERMATE (CENTRATURA + FOOTER FIX) --- */
 .screen { 
-    position: absolute; 
-    top: 0; left: 0; 
+    position: relative; /* Fondamentale per il footer assoluto */
     width: 100%; 
-    min-height: 100vh; /* Occupa tutto lo schermo */
+    min-height: 100vh; 
     
     /* FLEXBOX CENTRATO */
     display: flex; 
     flex-direction: column; 
-    justify-content: center; /* Centra verticalmente */
+    justify-content: center; /* Centra verticalmente il contenuto */
     align-items: center;     /* Centra orizzontalmente */
     
-    /* Nessun padding esagerato che sposta il centro */
-    padding: 20px 0; 
+    /* Spazio sotto per il footer in modo che non copra i bottoni su schermi piccoli */
+    padding-bottom: 60px; 
     box-sizing: border-box;
     
     background: rgba(2, 6, 23, 0.9); 
@@ -75,23 +74,23 @@ h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: 2px; text-shado
 .title-rocket { font-size: 3.5rem; animation: floatRocket 3s ease-in-out infinite; display: inline-block; }
 @keyframes floatRocket { 0%, 100% { transform: translateY(0) rotate(-45deg); } 50% { transform: translateY(-15px) rotate(-45deg); } }
 
-/* Testo "Scegli la tua missione" */
-.screen > p {
-    margin-top: 5px;
-    margin-bottom: 15px; /* Ridotto per avvicinare il menu */
-}
+/* Testo */
+.screen > p { margin-top: 5px; margin-bottom: 15px; }
 
-/* Footer (Vicino ai bottoni) */
+/* --- FOOTER INCOLLATO AL FONDO (MODIFICA FINALE) --- */
 .footer-container { 
-    margin-top: 25px; 
-    text-align: center; width: 100%; 
+    position: absolute; /* Si sgancia dal flusso centrale */
+    bottom: 20px;       /* Si incolla al fondo */
+    left: 0;
+    width: 100%;
+    text-align: center; 
 }
 .footer-credit { font-size: 0.9rem; color: var(--accent-color); opacity: 0.7; letter-spacing: 1px; text-transform: uppercase; font-weight: 300; }
 
 /* Input UI */
 .form-group { 
     display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; 
-    margin-bottom: 15px; /* Ridotto per compattare */
+    margin-bottom: 15px; 
 }
 input[type="text"], input[type="password"] { 
     padding: 15px 20px; font-size: 1.1rem; border-radius: 12px; 
